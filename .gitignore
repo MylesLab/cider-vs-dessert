@@ -1,0 +1,10 @@
+# R related
+.DS_Store
+.RData
+.Rhistory
+.Rproj.user
+
+# Other 
+lit-review
+manuscript
+biol5062-material
