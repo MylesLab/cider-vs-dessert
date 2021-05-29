@@ -29,8 +29,11 @@ abc_pop_info <- read_excel('data/raw/20200204_abc_pop_info.xlsx')
 # load the ABC phenotype table
 abc_pheno_tbl <- read_excel('data/raw/pheno_meta_data_abc.xlsx')
 
+###################
+## DATA CURATION ##
+###################
 
-# remove nursery id column because it does not have one-to-one mapping to apple id
+# only keep the columns required
 cols_to_keep <- c("PLANTID","ACP","ACNO","apple_id")
 abc_pop_info <- abc_pop_info[, names(abc_pop_info) %in% cols_to_keep]
 
@@ -39,6 +42,10 @@ abc_pop_info <- abc_pop_info[which(abc_pop_info$ACP == "PI"),]
 
 # only keep the unique rows
 abc_pop_info <- unique.data.frame(abc_pop_info)
+
+#############
+## JOINING ##
+#############
 
 # matching the ACCNO with the PI (no). in the gpeck data
 final.cider.df <- left_join(gpeck_data,abc_pop_info,by = c("PI (no.)" = "ACNO"))
@@ -53,4 +60,10 @@ nrow(final.cider.df)
 # join the phenotype table
 final.cider.pheno.df <- left_join(final.cider.df,abc_pheno_tbl, by = "apple_id")
 
-length(final.cider.pheno.df$`Accession name`)
+# write this final cider apples table
+write.table(
+  final.cider.pheno.df,
+  'data/processed/final_cider_apple_phenotype_data.tsv',
+  sep = "\t",
+  row.names = FALSE
+)
