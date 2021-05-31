@@ -82,9 +82,9 @@ common_dessert_apples <- unique(
 )
 
 length(common_dessert_apples)
-# [1] 21
+# [1] 20
 
-# There are 22 common dessert apples in US and Canada
+# There are 20 common dessert apples in US and Canada
 
 ###############################################
 ## COMMON DESSERT APPLES WITH PHENOTYPE DATA ##
