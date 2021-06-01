@@ -20,7 +20,7 @@ cider_data <- read.table(
 cider_pca_data <- cider_data[,c(23:ncol(cider_data))]
 
 # add use category
-cider_pca_data$use <- "C"
+cider_pca_data$use <- "Cider"
 
 nrow(cider_pca_data)
 # [1] 219
@@ -35,7 +35,7 @@ dessert_data <- read.table(
 dessert_pca_data <- dessert_data[,c(10:ncol(dessert_data))]
 
 # add use category
-dessert_pca_data$use <- "D"
+dessert_pca_data$use <- "Dessert"
 
 nrow(dessert_pca_data)
 # [1] 27
@@ -62,11 +62,37 @@ colnames(all_pca_data)
 # [37] "tpc"                     "frap"                    "time_ripen_2017"        
 # [40] "use"
 
+# only keep certain columns 
+all_pca_data <- all_pca_data[
+  ,
+  c(
+    "acidity_17_harv",
+    "brix_17_harv",
+    "firmness_avg_17_harv",
+    "weight_avg_17_harv",
+    "juiciness_16_harv",
+    "tpc",
+    "date_jul_16_harv",
+    "use"
+  )
+]
+
+colnames(all_pca_data) <- c(
+  "AcidityAtHarvest",
+  "SweetnessAtHarvest",
+  "FirmnessAtHarvest",
+  "WeightAtHarvest",
+  "JuicinessAtHarvest",
+  "Tanicity",
+  "HarvestDate",
+  "Use"
+)
+
 ##################
 ## PCA ANALYSIS ##
 ##################
 
-colnames(all_pca_data) <- c(seq("1","39"),'use')
+# colnames(all_pca_data) <- c(seq("1","39"),'use')
 
 pca_data <- scale(all_pca_data[,1:length(all_pca_data)-1], center = TRUE)
 pca_data[is.na(pca_data)] = 0
@@ -74,4 +100,4 @@ pca <- prcomp(pca_data)
 
 summary(pca)
 
-ggbiplot(pca, labels = all_pca_data$use, groups = all_pca_data$use, choices = c(1,3))
+ggbiplot(pca, labels = all_pca_data$use, groups = all_pca_data$Use, choices = c(1,3))
