@@ -48,10 +48,15 @@ abc_pop_info <- unique.data.frame(abc_pop_info)
 #############
 
 # matching the ACCNO with the PI (no). in the gpeck data
-final.cider.df <- left_join(gpeck_data,abc_pop_info,by = c("PI (no.)" = "ACNO"))
+final.cider.df <- inner_join(gpeck_data,abc_pop_info,by = c("PI (no.)" = "ACNO"))
 
 nrow(final.cider.df)
-# [1] 219
+# [1] 141
+
+table(final.cider.df$`Region of origin`)
+
+all_na_varieties <- final.cider.df[final.cider.df$`Region of origin` == 'North America','PLANTID']
+
 
 # The reason why we find 219 rows after left join instead of the 217 that we
 # expect is because there are a few rows where a multiple apple ids corresponded

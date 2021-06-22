@@ -27,19 +27,19 @@ canada_dessert_apples = c(
   "Ambrosia",
   "Cortland",
   "Crispin",
-  "Empire", # TODO: these are also listed as cider apples. ¯\_(ツ)_/¯
+  "Empire",
   "Fuji", 
-  "Gala", # TODO: these are also listed as cider apples. ¯\_(ツ)_/¯
-  "Golden Delicious", # TODO: these are also listed as cider apples. ¯\_(ツ)_/¯
+  "Gala",
+  "Golden Delicious",
   "Honeycrisp",
   "Idared",
   "Jonagold",
   "Lobo",
-  "Mcintosh", # TODO: these are also listed as cider apples. ¯\_(ツ)_/¯
+  "McIntosh",
   "Red Delicious",
-  "Royal Gala", # TODO: these are also listed as cider apples. ¯\_(ツ)_/¯
+  "Royal Gala",
   "Spartan",
-  "Spy" # TODO: Northern Spy also listed as cider apples. ¯\_(ツ)_/¯
+  "Spy"
 )
 
 length(canada_dessert_apples)
@@ -59,7 +59,7 @@ us_dessert_apples = c(
   "Fuji",
   "Golden Delicious",
   "Honeycrisp",
-  "Mcintosh",
+  "McIntosh",
   "Rome",
   "Cripps",
   "Pink Lady",
@@ -90,7 +90,7 @@ length(common_dessert_apples)
 ## COMMON DESSERT APPLES WITH PHENOTYPE DATA ##
 ###############################################
 
-common_dessert_pheno_dat <- NULL
+common_dessert_pheno_dat <- data.frame()
 for(name in common_dessert_apples){
   print(name)
   common_dessert_pheno_dat <- rbind(
@@ -100,7 +100,27 @@ for(name in common_dessert_apples){
 }
 
 nrow(common_dessert_pheno_dat)
-# [1] 27 varieties
+# [1] 30 varieties
+
+# removing some of the varieties that are not cider apples
+common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Buckeye Gala",common_dessert_pheno_dat$PLANTID),]
+common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Gala Must Regal Prince",common_dessert_pheno_dat$PLANTID),]
+common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Galarina",common_dessert_pheno_dat),]
+common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Marshall McIntosh",common_dessert_pheno_dat$PLANTID),]
+common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Kimball McIntosh 2-4-4-4",common_dessert_pheno_dat$PLANTID),]
+common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Field Spy",common_dessert_pheno_dat$PLANTID),]
+common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Loop Giant Spy",common_dessert_pheno_dat$PLANTID),]
+common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Manitoba Spy",common_dessert_pheno_dat$PLANTID),]
+common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Red Spy",common_dessert_pheno_dat$PLANTID),]
+common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Prairie Spy",common_dessert_pheno_dat$PLANTID),]
+common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Hotle Rome",common_dessert_pheno_dat$PLANTID),]
+common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Rome Beauty Law",common_dessert_pheno_dat$PLANTID),]
+common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Red Australian Rome Beauty",common_dessert_pheno_dat$PLANTID),]
+common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Pink Lady", common_dessert_pheno_dat$PLANTID),]
+
+# how many varieties that we end up with
+nrow(common_dessert_pheno_dat)
+# [1] 16
 
 # writing the dessert apple phenotype table to file
 write.table(
