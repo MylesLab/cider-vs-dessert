@@ -6,6 +6,39 @@
 # Created by: tayabsoomro
 # Created on: 2021-05-20
 
+# TODO: PCA with English, France and ABC to see if they are all separated nicely.
+# TODO: Add supplementary table should contain:
+# - pI ids
+# - apple ids
+# - traits
+# - country of origin
+# - ...anything that I end up using
+#
+# TODO: Materials & Methods
+# TODO: Introduction
+#  Great amount of cider being consumed, lots of demand for cider apples,
+#  Common cultivars of cider compared to traditional english / french varieties
+#  to see what the cider industry could have if they used these english adn french
+#  cider and dessert apple varieties.
+# TODO: Discussion: Things we didn't measure but should be considered:
+#     - Yield
+#     - Precocity (how long does it take to bear fruit)
+#     - Bineal Bearing
+# TODO: Mention that there are uneven sample sizes (17 dessert apples, 48 france apples and 35 england)
+#       https://www.researchgate.net/figure/The-effect-of-uneven-sampling-on-PCA-projection-PCA-projection-of-samples-taken-from-a_fig5_38015799
+#       The degree of difference between the two points might be skewed by uneven sampling
+# TODO: COPY WHAT TOMMY DID
+# TODO: Tasks
+#   - Are english cider apples different from french cider apples
+#   - Are english cider apple different from dessert apples
+#   - Are french cider apple different from dessert apples
+#   - Are cider apples different from dessert apples.
+# TODO: Table1 from Tommy's Paper
+# TODO: Density plots for the phenotypes
+#     - three different tests (english, french, dessert)
+#     - report a p-value after Bonferroni correction ( divide by 30)
+# TODO: Read a brief report for PPP
+
 library(dplyr)
 library(readxl)
 
