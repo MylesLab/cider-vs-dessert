@@ -29,13 +29,13 @@ generate_pca_violin_plots <- function(dat, pov) {
       ) +
       xlab("") +
       ylim(c(min_y, max_y)) +
-      ylab(sprintf("%s (%.2f%%)", component, pov[component]))
+      ylab(sprintf("%s (%.1f%%)", component, pov[component]))
   }
   ggarrange(plotlist = plots, nrow = 1, ncol = 3)
 }
 
-generate_pca_biplot <- function(pca, data, c1, c2) {
-  plot <- ggbiplot(pca, choices = c(c1, c2), var.axes = FALSE) +
+generate_pca_biplot <- function(pca, data, choices, pov) {
+  plot <- ggbiplot(pca, choices = choices, var.axes = FALSE) +
     theme_avenir(axis = TRUE, grid = FALSE) +
     theme(
       axis.title.x = element_text(hjust = 0.5, size = 12),
@@ -62,11 +62,15 @@ generate_pca_biplot <- function(pca, data, c1, c2) {
       size = 3,
       stroke = 1,
     ) +
+    xlab(sprintf("PC%d (%0.1f%%)",choices[1],pov[choices[1]])) + 
+    ylab(sprintf("PC%d (%0.1f%%)",choices[2],pov[choices[2]])) + 
     scale_fill_manual(name = "Apple Types", values = c("#538EC1", "#CC2440", "#5BA398"), labels = c("Dessert", "English", "French")) +
     scale_color_manual(name = "Apple Types", values = c("#538EC1", "#CC2440", "#5BA398"), labels = c("Dessert", "English", "French")) +
     scale_shape_manual(name = "Apple Types", values = c(16, 23, 24), labels = c("Dessert", "English", "French")) +
     theme(
       plot.title = element_blank()
     )
+     
+    
   return(plot)
 }

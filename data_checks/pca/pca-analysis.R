@@ -146,8 +146,8 @@ ggsave(filename = "figures/pca/scree_plot.png", plot = scree_plot)
 ## GENERATE PC BIPLOT AND VIOLIN PLOTS ##
 #########################################
 
-pc1_pc2 <- generate_pca_biplot(pca, all_pca_data, 1, 2)
-pc1_pc3 <- generate_pca_biplot(pca, all_pca_data, 1, 3)
+pc1_pc2 <- generate_pca_biplot(pca, all_pca_data, c(1,2), pov)
+pc1_pc3 <- generate_pca_biplot(pca, all_pca_data, c(1,3), pov)
 
 PCs <- data.frame(
   PC1 = as.numeric(pca$x[, 1]),
