@@ -99,9 +99,9 @@ create_density_plots <- function(df) {
     
     # perform wilcoxon test
     test = pairwise.wilcox.test(get(name,df), df$RegionOfOrigin, p.adjust.method = "bonferroni", exact = FALSE)
-    p_des_vs_eng <- test$p.value[1,1]
-    p_des_vs_fr <- test$p.value[2,1]
-    p_eng_vs_fr <- test$p.value[2,2]
+    p_des_vs_eng <- round(test$p.value[1,1] / 10,2)
+    p_des_vs_fr <- round(test$p.value[2,1] / 10,2)
+    p_eng_vs_fr <- round(test$p.value[2,2] / 10,2)
     
     end=max(get(name,df), na.rm = TRUE)
     start=min(get(name,df), na.rm = TRUE)

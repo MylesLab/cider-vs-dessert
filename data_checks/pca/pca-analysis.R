@@ -176,5 +176,4 @@ ggsave(
   plot = dplots$all_plots
 )
 
-
-as.numeric(unlist(dplots$stats$Acidity))
+  
