@@ -1,7 +1,8 @@
-# Title     : Data checks on final table
+# Title     : Missing Data Check
 # Objective : This script performs some data checks to get some basic statistics
 #             on the final phenotype table
-
+# Created by: tayabsoomro
+# Created on: 2021-05-31
 
 ############################
 ## IMPORTS & DATA LOADING ##
