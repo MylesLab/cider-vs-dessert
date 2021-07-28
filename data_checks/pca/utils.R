@@ -93,7 +93,7 @@ create_density_plots <- function(df) {
   return_plots = list()
   stats = list()
   idx = 1
-  all_pheno_names <- names(all_pca_data[head(seq_along(all_pca_data),-2)])
+  all_pheno_names <- names(df[head(seq_along(df), -2)])
   pval_text_xaxis <- c(12,25,15,12,270,20,20,260,160,0)
   for ( name in all_pheno_names) {
     
@@ -102,6 +102,16 @@ create_density_plots <- function(df) {
     p_des_vs_eng <- round(test$p.value[1,1] / 10,2)
     p_des_vs_fr <- round(test$p.value[2,1] / 10,2)
     p_eng_vs_fr <- round(test$p.value[2,2] / 10,2)
+    
+    # TODO: SHOULD I DO IT SEPARETELY TO GET W STATISTIC VALUE?
+    des_ph <- df[which(df[,'RegionOfOrigin'] == 'Dessert'),name]
+    fr_ph <- df[which(df[,'RegionOfOrigin'] == 'England'),name]
+    eng_ph <- df[which(df[,'RegionOfOrigin'] == 'France'),name]
+
+
+    w_des_vs_eng <- wilcox.test(des_ph, eng_ph)$statistic
+    w_des_vs_fr <- wilcox.test(des_ph, fr_ph)$statistic
+    w_eng_vs_fr <- wilcox.test(eng_ph, fr_ph)$statistic
     
     end=max(get(name,df), na.rm = TRUE)
     start=min(get(name,df), na.rm = TRUE)
@@ -117,7 +127,12 @@ create_density_plots <- function(df) {
       xlab(pretty_labels[[ name ]]) 
     
     return_plots[[ name ]] = plt
-    stats [[ name ]] = list(p_des_vs_eng=p_des_vs_eng, p_des_vs_fr=p_des_vs_fr, p_eng_vs_fr=p_eng_vs_fr)
+    stats [[ name ]] = 
+      list(
+        pvals=c(p_des_vs_eng=p_des_vs_eng, p_des_vs_fr=p_des_vs_fr, p_eng_vs_fr=p_eng_vs_fr),
+        statistic=c(w_des_vs_eng=w_des_vs_eng, w_des_vs_fr=w_des_vs_fr, w_eng_vs_fr=w_eng_vs_fr)
+      )
+    stats [[ name ]]
     plots[[idx]] = plt
     idx = idx + 1
   }

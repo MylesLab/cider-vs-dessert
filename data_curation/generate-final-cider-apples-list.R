@@ -13,12 +13,6 @@
 # - country of origin
 # - ...anything that I end up using
 #
-# TODO: Tasks
-#   - Are english cider apples different from french cider apples
-#   - Are english cider apple different from dessert apples
-#   - Are french cider apple different from dessert apples
-#   - Are cider apples different from dessert apples.
-
 library(dplyr)
 library(readxl)
 
