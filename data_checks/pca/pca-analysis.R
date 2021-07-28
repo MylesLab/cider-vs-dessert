@@ -165,3 +165,16 @@ ggsave(
   filename = "figures/pca/Figure-1_pca.png",
   plot = pc_fig1
 )
+
+############################
+## GENERATE DENSITY PLOTS ##
+############################
+dplots <- create_density_plots(all_pca_data)
+
+ggsave(
+  filename = 'figures/density/fig-2_density_plots.png',
+  plot = dplots$all_plots
+)
+
+
+as.numeric(unlist(dplots$stats$Acidity))

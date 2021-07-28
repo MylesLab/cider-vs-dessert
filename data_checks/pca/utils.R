@@ -74,3 +74,55 @@ generate_pca_biplot <- function(pca, data, choices, pov) {
     
   return(plot)
 }
+
+create_density_plots <- function(df) {
+  pretty_labels = list(
+    Acidity="Acidity (g/mL)",
+    DeltaAcidity="Δ Acidity (%)",
+    SSC="Sweetness (%)",
+    Firmness="Firmness (km / cm²)",
+    Weight="Weight (g)",
+    Juiciness="Juciness (%)",
+    PhenolicContent = "Phenolic Content (µmol/g)",
+    HarvestDate="Harvest Date (julian days)",
+    FloweringDate="Flowering Date (julian days)",
+    Softening = "Softening (%)"
+  )
+  
+  plots = list()
+  return_plots = list()
+  stats = list()
+  idx = 1
+  all_pheno_names <- names(all_pca_data[head(seq_along(all_pca_data),-2)])
+  pval_text_xaxis <- c(12,25,15,12,270,20,20,260,160,0)
+  for ( name in all_pheno_names) {
+    
+    # perform wilcoxon test
+    test = pairwise.wilcox.test(get(name,df), df$RegionOfOrigin, p.adjust.method = "bonferroni", exact = FALSE)
+    p_des_vs_eng <- test$p.value[1,1]
+    p_des_vs_fr <- test$p.value[2,1]
+    p_eng_vs_fr <- test$p.value[2,2]
+    
+    end=max(get(name,df), na.rm = TRUE)
+    start=min(get(name,df), na.rm = TRUE)
+    text_x = median(get(name,df),na.rm = TRUE)
+    plt = ggplot(data=df, aes_string(x=get(name,df))) +
+      geom_density(alpha=0.4, aes(fill=RegionOfOrigin)) +
+      theme_avenir() +
+      theme(
+        legend.title = element_blank(),
+        axis.title.x = element_text(hjust=0.5, size = 12),
+        axis.title.y = element_text(hjust = 0.5, size = 10, margin = margin(t = 0, r = 0.1, b = 0, l = 0, unit = "in"))
+      ) +
+      xlab(pretty_labels[[ name ]]) 
+    
+    return_plots[[ name ]] = plt
+    stats [[ name ]] = list(p_des_vs_eng=p_des_vs_eng, p_des_vs_fr=p_des_vs_fr, p_eng_vs_fr=p_eng_vs_fr)
+    plots[[idx]] = plt
+    idx = idx + 1
+  }
+  
+  den_plots = ggarrange(plotlist = plots, ncol = 2,nrow=5,common.legend = TRUE)
+  
+  return(list(all_plots=den_plots,single_plot=return_plots,stats=stats))
+}
