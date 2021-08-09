@@ -6,6 +6,25 @@
 library(ggplot2)
 source("themes/theme_avenir.R")
 
+GLOBAL_PALETTE = "PuOr"
+GLOBAL_DIRECTION = -1
+GLOBAL_ALPHA = 0.6
+GLOBAL_LABELS = c("Dessert", "English", "French")
+GLOBAL_THEME = theme_avenir(
+  panel_x = F, 
+  panel_y = F, 
+  grid = F, 
+  axis = T, 
+  axis_col = "black",
+  ticks = T
+) + theme(
+  axis.text.x = element_text(size = 13, hjust = 0.5, vjust = -0.5),
+  axis.text.y = element_text(size = 13, hjust = -0.5, vjust= 0.5),
+  axis.title.x = element_text(size = 12, margin = margin(t = 10, r = 0, b = 0, l = 0)),
+  axis.title.y = element_text(size = 12, margin = margin(t = 0, r = 10, b = 0, l = 0)),
+  legend.text = element_text(size = 12)
+)
+
 generate_pca_violin_plots <- function(dat, pov) {
   components <- c("PC1", "PC2", "PC3")
   plots <- list()
@@ -14,68 +33,61 @@ generate_pca_violin_plots <- function(dat, pov) {
   min_y <- -6
   for (component in components) {
     idx <- idx + 1
+  
     plots[[idx]] <- ggplot(dat, aes_string(x = "AppleType", y = get(component, dat))) +
-      geom_violin(aes(fill = AppleType), trim = FALSE, alpha = 0.4) +
+      geom_violin(aes(fill = AppleType, color = AppleType), trim = FALSE, 
+                  color="black", stroke = 0.5, alpha = GLOBAL_ALPHA) +
       geom_boxplot(width = 0.1, fill = "white") +
       stat_compare_means(
         method = "wilcox.test",
         label = sprintf("p=%s","p.format"),
-        comparisons = list(c("Dessert", "England"), c("Dessert", "France"), c("England", "France")),
+        comparisons = list(c("Dessert", "English"), c("Dessert", "French"), c("English", "French")),
         label.y = c(3.5,5,6)
       ) +
-      theme_classic() +
-      theme(
-        legend.position = "none"
-      ) +
+      GLOBAL_THEME + theme(legend.position = "none") +
       xlab("") +
       ylim(c(min_y, max_y)) +
+      scale_color_brewer(palette = GLOBAL_PALETTE, direction = GLOBAL_DIRECTION) + 
+      scale_fill_brewer(palette = GLOBAL_PALETTE, direction = GLOBAL_DIRECTION) + 
       ylab(sprintf("%s (%.1f%%)", component, pov[component]))
   }
   ggarrange(plotlist = plots, nrow = 1, ncol = 3)
 }
 
 generate_pca_biplot <- function(pca, data, choices, pov) {
-  plot <- ggbiplot(pca, choices = choices, var.axes = FALSE) +
-    theme_avenir(axis = TRUE, grid = FALSE) +
-    theme(
-      axis.title.x = element_text(hjust = 0.5, size = 12),
-      axis.title.y = element_text(hjust = 0.5, size = 12),
-      panel.grid.major.x = element_blank(),
-      panel.grid.minor.x = element_blank(),
-      panel.grid.major.y = element_blank(),
-      panel.grid.minor.y = element_blank(),
-      axis.line.x = element_line(colour = "black"),
-      axis.line.y = element_line(colour = "black"),
-      legend.background = element_blank(),
-      legend.spacing.y = unit(5, "mm"),
-      legend.spacing.x = unit(0, "mm"),
-      legend.box.spacing = unit(5, "mm"),
-      legend.box.background = element_rect(colour = "black", size = 0.3),
-      aspect.ratio = 1, axis.text = element_text(colour = 1, size = 12)
+  plot <- ggplot(
+    pca, 
+    aes(
+      x=PC1, 
+      y=PC2, 
+      fill=data$RegionOfOrigin, 
+      shape=data$RegionOfOrigin)
     ) +
-    geom_point(
-      aes(
-        fill = data$RegionOfOrigin,
-        shape = data$RegionOfOrigin,
-        color = data$RegionOfOrigin
-      ),
-      size = 3,
-      stroke = 1,
-    ) +
-    xlab(sprintf("PC%d (%0.1f%%)",choices[1],pov[choices[1]])) + 
-    ylab(sprintf("PC%d (%0.1f%%)",choices[2],pov[choices[2]])) + 
-    scale_fill_manual(name = "Apple Types", values = c("#538EC1", "#CC2440", "#5BA398"), labels = c("Dessert", "English", "French")) +
-    scale_color_manual(name = "Apple Types", values = c("#538EC1", "#CC2440", "#5BA398"), labels = c("Dessert", "English", "French")) +
-    scale_shape_manual(name = "Apple Types", values = c(16, 23, 24), labels = c("Dessert", "English", "French")) +
-    theme(
-      plot.title = element_blank()
-    )
+    geom_point(size = 3, alpha = GLOBAL_ALPHA) +
+    xlab(sprintf("%s (%0.1f%%)",choices[1],pov[choices[1]])) + 
+    ylab(sprintf("%s (%0.1f%%)",choices[2],pov[choices[2]])) + 
+    scale_fill_brewer(
+      name = "Apple Type", 
+      palette = GLOBAL_PALETTE, 
+      labels = GLOBAL_LABELS,
+      direction = GLOBAL_DIRECTION
+    ) + 
+    scale_shape_manual(
+      name="Apple Type",
+      values = c(21, 23, 24),
+      labels = GLOBAL_LABELS
+    ) + GLOBAL_THEME
      
     
   return(plot)
 }
 
 create_density_plots <- function(df) {
+  
+  df[which(df$RegionOfOrigin == 'England'),'RegionOfOrigin'] <- 'English'
+  df[which(df$RegionOfOrigin == 'France'),'RegionOfOrigin'] <- 'French'
+  
+  
   pretty_labels = list(
     Acidity="Acidity (g/mL)",
     DeltaAcidity="Δ Acidity (%)",
@@ -86,7 +98,7 @@ create_density_plots <- function(df) {
     PhenolicContent = "Phenolic Content (µmol/g)",
     HarvestDate="Harvest Date (julian days)",
     FloweringDate="Flowering Date (julian days)",
-    Softening = "Softening (%)"
+    Softening = "Δ Firmness (%)"
   )
   
   plots = list()
@@ -94,21 +106,24 @@ create_density_plots <- function(df) {
   stats = list()
   idx = 1
   all_pheno_names <- names(df[head(seq_along(df), -2)])
-  pval_text_xaxis <- c(12,25,15,12,270,20,20,260,160,0)
   for ( name in all_pheno_names) {
     
-    # perform wilcoxon test
-    test = pairwise.wilcox.test(get(name,df), df$RegionOfOrigin, p.adjust.method = "bonferroni", exact = FALSE)
-    p_des_vs_eng <- round(test$p.value[1,1] / 10,2)
-    p_des_vs_fr <- round(test$p.value[2,1] / 10,2)
-    p_eng_vs_fr <- round(test$p.value[2,2] / 10,2)
-    
-    # TODO: SHOULD I DO IT SEPARETELY TO GET W STATISTIC VALUE?
     des_ph <- df[which(df[,'RegionOfOrigin'] == 'Dessert'),name]
-    fr_ph <- df[which(df[,'RegionOfOrigin'] == 'England'),name]
-    eng_ph <- df[which(df[,'RegionOfOrigin'] == 'France'),name]
-
-
+    fr_ph <- df[which(df[,'RegionOfOrigin'] == 'French'),name]
+    eng_ph <- df[which(df[,'RegionOfOrigin'] == 'English'),name]
+    
+    boxplot(des_ph,fr_ph,eng_ph)
+    
+    # p-values
+    p_des_vs_eng <- ( wilcox.test(des_ph, eng_ph)$p.value ) * 30
+    p_des_vs_fr <- ( wilcox.test(des_ph, fr_ph)$p.value ) * 30
+    p_eng_vs_fr <- ( wilcox.test(eng_ph, fr_ph)$p.value ) * 30
+    
+    if(p_des_vs_eng > 1) p_des_vs_eng <- 1
+    if(p_des_vs_fr > 1) p_des_vs_fr <- 1
+    if(p_eng_vs_fr > 1) p_eng_vs_fr <- 1
+    
+    # test statistic
     w_des_vs_eng <- wilcox.test(des_ph, eng_ph)$statistic
     w_des_vs_fr <- wilcox.test(des_ph, fr_ph)$statistic
     w_eng_vs_fr <- wilcox.test(eng_ph, fr_ph)$statistic
@@ -117,14 +132,14 @@ create_density_plots <- function(df) {
     start=min(get(name,df), na.rm = TRUE)
     text_x = median(get(name,df),na.rm = TRUE)
     plt = ggplot(data=df, aes_string(x=get(name,df))) +
-      geom_density(alpha=0.4, aes(fill=RegionOfOrigin)) +
-      theme_avenir() +
-      theme(
-        legend.title = element_blank(),
-        axis.title.x = element_text(hjust=0.5, size = 12),
-        axis.title.y = element_text(hjust = 0.5, size = 10, margin = margin(t = 0, r = 0.1, b = 0, l = 0, unit = "in"))
-      ) +
-      xlab(pretty_labels[[ name ]]) 
+      geom_density(alpha=GLOBAL_ALPHA, aes(fill=RegionOfOrigin)) +
+      GLOBAL_THEME + scale_fill_brewer(
+        name = "Apple Type", 
+        palette = GLOBAL_PALETTE, 
+        labels = GLOBAL_LABELS,
+        direction = GLOBAL_DIRECTION
+      ) + 
+      xlab(pretty_labels[[ name ]]) + ylab("Density") 
     
     return_plots[[ name ]] = plt
     stats [[ name ]] = 

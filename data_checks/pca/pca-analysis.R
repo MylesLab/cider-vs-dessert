@@ -146,24 +146,29 @@ ggsave(filename = "figures/pca/scree_plot.png", plot = scree_plot)
 ## GENERATE PC BIPLOT AND VIOLIN PLOTS ##
 #########################################
 
-pc1_pc2 <- generate_pca_biplot(pca, all_pca_data, c(1,2), pov)
-pc1_pc3 <- generate_pca_biplot(pca, all_pca_data, c(1,3), pov)
+pc1_pc2 <- generate_pca_biplot(as.data.frame(pca$x), all_pca_data, c("PC1","PC2"), pov)
+pc1_pc3 <- generate_pca_biplot(as.data.frame(pca$x), all_pca_data, c("PC1","PC3"), pov)
 
 PCs <- data.frame(
   PC1 = as.numeric(pca$x[, 1]),
   PC2 = as.numeric(pca$x[, 2]),
   PC3 = as.numeric(pca$x[, 3]),
-  AppleType = as.factor(all_pca_data$RegionOfOrigin)
+  AppleType = all_pca_data$RegionOfOrigin
 )
+PCs[which(PCs$AppleType == "England"),'AppleType'] <- "English"
+PCs[which(PCs$AppleType == "France"),'AppleType'] <- "French"
+PCs$AppleType <- as.factor(PCs$AppleType)
 
 pc_fig1 <- ggarrange(
   ggarrange(pc1_pc2, pc1_pc3, common.legend = TRUE, labels = c("A","B")),
   generate_pca_violin_plots(PCs,pov),
   nrow = 2, ncol = 1, labels = c("","C")
 )
+print(pc_fig1)
 ggsave(
   filename = "figures/pca/Figure-1_pca.png",
-  plot = pc_fig1
+  plot = pc_fig1,
+  dpi = 600
 )
 
 ############################
@@ -173,7 +178,8 @@ dplots <- create_density_plots(all_pca_data)
 
 ggsave(
   filename = 'figures/density/fig-2_density_plots.png',
-  plot = dplots$all_plots
+  plot = dplots$all_plots,
+  dpi = 600
 )
 
   
