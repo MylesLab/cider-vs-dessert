@@ -47,7 +47,7 @@ theme_avenir <- function(
   caption_size = base_size * 0.8,
   caption_face = "plain", caption_margin = 5,
   caption = NULL,
-  axis_text_size = base_size,
+  axis_text_size = base_size + 5,
   axis_title_x = T,
   axis_title_y = T,
   axis_title_family = base_family,
@@ -63,7 +63,7 @@ theme_avenir <- function(
   ret <- ret + theme(legend.key = element_blank())
   
   if (grid == F) {
-    ret <- ret + theme(panel.grid = element_blank())
+    ret <- ret + theme(panel.grid.major.x = element_blank(),panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(),panel.grid.minor.y = element_blank())
   }
   
   if (grid == T | panel_x == T) {
@@ -72,7 +72,7 @@ theme_avenir <- function(
   if (grid == T | panel_y == T) {
     ret <- ret + theme(panel.grid.major.y = element_line(color = grid_col, size = 0.2))
   } else {
-    ret <- ret + theme(panel.grid = element_blank())
+    ret <- ret + theme(panel.grid.major.x = element_blank(),panel.grid.major.y = element_blank())
   }
   
   if (inherits(axis, "character") | axis == TRUE) {
@@ -108,8 +108,8 @@ theme_avenir <- function(
     ret <- ret + theme(axis.ticks.length = grid::unit(5, "pt"))
   }
   
-  xj <- switch(tolower(substr(axis_title_just, 1, 1)), b = 0, l = 0, m = 0.5, c = 0.5, r = 1, t = 1)
-  yj <- switch(tolower(substr(axis_title_just, 2, 2)), b = 0, l = 0, m = 0.5, c = 0.5, r = 1, t = 1)
+  xj <- switch(substr(axis_title_just, 0, 0), b = 0, l = 0, m = 0.5, c = 0.5, r = 1, t = 1)
+  yj <- switch(substr(axis_title_just, 0, 0), b = 0, l = 0, m = 0.5, c = 0.5, r = 1, t = 1)
   
   ret <- ret + theme(axis.text.x = element_text(size = axis_text_size, margin = margin(t = 0)))
   ret <- ret + theme(axis.text.y = element_text(size = axis_text_size, margin = margin(r = 0)))
