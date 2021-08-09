@@ -72,6 +72,14 @@ all_na_varieties <- final.cider.df[final.cider.df$`Region of origin` == 'North A
 # join the phenotype table
 final.cider.pheno.df <- left_join(final.cider.df,abc_pheno_tbl, by = "apple_id")
 
+nrow(final.cider.pheno.df)
+# [1] 141
+
+final.cider.pheno.df <- final.cider.pheno.df[which(final.cider.pheno.df$`Region of origin` == "England" | final.cider.pheno.df$`Region of origin` == "France"),]
+
+nrow(final.cider.pheno.df)
+# [1] 83
+
 # write this final cider apples table
 write.table(
   final.cider.pheno.df,

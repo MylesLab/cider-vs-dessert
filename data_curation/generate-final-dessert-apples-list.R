@@ -12,9 +12,16 @@
 library(dplyr)
 library(readxl)
 
+abc_pheno_tbl <- read_excel('data/raw/pheno_meta_data_abc.xlsx')
+
+# for attaching the PI ids
 abc_pop_info <- read_excel(
-  'data/raw/pheno_meta_data_abc.xlsx'
+  'data/raw/20200204_abc_pop_info.xlsx'
 )
+abc_pop_info <- abc_pop_info[,c("PLANTID","ACNO")]
+abc_pop_info <- unique(abc_pop_info)
+
+
 
 ####################################
 ## CANADIAN COMMON DESSERT APPLES ##
@@ -95,7 +102,7 @@ for(name in common_dessert_apples){
   print(name)
   common_dessert_pheno_dat <- rbind(
     common_dessert_pheno_dat,
-    abc_pop_info[grep(name, abc_pop_info$PLANTID),]
+    abc_pheno_tbl[grep(name, abc_pheno_tbl$PLANTID),]
   )
 }
 
@@ -122,9 +129,15 @@ common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Pink Lady", common_d
 nrow(common_dessert_pheno_dat)
 # [1] 16
 
+colnames(common_dessert_pheno_dat)
+
+final_dessert.df <- left_join(common_dessert_pheno_dat, abc_pop_info)
+
+final_dessert.df[which(is.na(final_dessert.df$ACNO)),c('PLANTID','origin','ACNO')]
+
 # writing the dessert apple phenotype table to file
 write.table(
-  common_dessert_pheno_dat,
+  final_dessert.df,
   'data/processed/final_dessert_apple_phenotype_data.tsv',
   sep = "\t",
   row.names = FALSE

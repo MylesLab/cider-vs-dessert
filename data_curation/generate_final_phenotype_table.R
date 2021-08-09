@@ -14,12 +14,6 @@ final_cider.df <- read.table(
   header = TRUE
 )
 
-# only keep English and French cider apples
-final_cider.df <- 
-  final_cider.df[
-    which(final_cider.df$Region.of.origin == "England" | final_cider.df$Region.of.origin == "France"),
-  ]
-
 # only keep certain columns
 final_cider.df <- final_cider.df[,c(
   "PI..no..",
@@ -69,6 +63,7 @@ final_dessert.df <- read.table(
 
 # only keep certain columns
 final_dessert.df <- final_dessert.df[,c(
+  "ACNO",
   "PLANTID",
   "acidity_17_harv",
   "percent_acidity_17",
@@ -84,6 +79,7 @@ final_dessert.df <- final_dessert.df[,c(
 
 # cleanup the column names
 colnames(final_dessert.df) <- c(
+  "PIID",
   "Name",
   "Acidity",
   "DeltaAcidity", # change in acidity during storage
