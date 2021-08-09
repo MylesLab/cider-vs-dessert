@@ -11,6 +11,7 @@
 library(ggbiplot)
 library(reshape2)
 library(ggpubr)
+library(dplyr)
 library(RColorBrewer)
 
 # load the fancy ggplot theme
@@ -23,11 +24,6 @@ cider_data <- read.table(
   header = TRUE
 )
 
-# only keep the England and France varieties
-cider_data <- cider_data[which(
-  cider_data$Region.of.origin == "England" |
-    cider_data$Region.of.origin == "France"
-), ]
 
 #######################
 ## GENERATE PCA DATA ##
@@ -55,12 +51,11 @@ dessert_data <- read.table(
 )
 
 # only get the columns that can be used for PCA
-dessert_pca_data <- dessert_data[, c(10:ncol(dessert_data))]
+dessert_data_cols <- 10:(ncol(dessert_data)-1)
+dessert_pca_data <- dessert_data[, dessert_data_cols]
 
 # add region of origin category
 dessert_pca_data$Region.of.origin <- "Dessert"
-# add use category
-dessert_pca_data$use <- "Dessert"
 
 
 nrow(dessert_pca_data)
@@ -93,8 +88,7 @@ all_pca_data <- all_pca_data[
     "date_jul_16_harv",
     "flowering_jul_16_harv",
     "percent_firmness_avg_17",
-    "Region.of.origin",
-    "use"
+    "Region.of.origin"
   )
 ]
 
@@ -109,19 +103,17 @@ colnames(all_pca_data) <- c(
   "HarvestDate",
   "FloweringDate",
   "Softening", # % Change in firmness during storage,
-  "RegionOfOrigin",
-  "Use"
+  "RegionOfOrigin"
 )
 
 ##################
 ## PCA ANALYSIS ##
 ##################
 
-pca_cols_idx <- head(seq_along(all_pca_data), -2)
-pca_data <- scale(all_pca_data[, pca_cols_idx], center = TRUE)
+pca_cols_idx <- head(seq_along(all_pca_data), -1)
+pca_data <- scale(all_pca_data[, pca_cols_idx]) # scale and center the data
 pca_data[is.na(pca_data)] <- 0
 pca <- prcomp(pca_data)
-
 
 # scree plot
 vars_transformed <- apply(pca$x, 2, var)
@@ -145,6 +137,8 @@ ggsave(filename = "figures/pca/scree_plot.png", plot = scree_plot)
 #########################################
 ## GENERATE PC BIPLOT AND VIOLIN PLOTS ##
 #########################################
+
+# TODO: WHY ARE PCA PLOTS WEIRD
 
 pc1_pc2 <- generate_pca_biplot(as.data.frame(pca$x), all_pca_data, c("PC1","PC2"), pov)
 pc1_pc3 <- generate_pca_biplot(as.data.frame(pca$x), all_pca_data, c("PC1","PC3"), pov)
