@@ -6,13 +6,6 @@
 # Created by: tayabsoomro
 # Created on: 2021-05-20
 
-# TODO: Add supplementary table should contain:
-# - pI ids
-# - apple ids
-# - traits
-# - country of origin
-# - ...anything that I end up using
-#
 library(dplyr)
 library(readxl)
 
@@ -61,6 +54,13 @@ nrow(final.cider.df)
 # [1] 141
 
 table(final.cider.df$`Region of origin`)
+# 
+# Australia  Central Europe         England     Former USSR          France 
+# 1              16              35               1              48 
+# Japan             n/a     New Zealand   North America Northern Africa 
+# 1               2               1              26               1 
+# Northern Europe Southern Europe           Spain 
+# 5               1               3 
 
 all_na_varieties <- final.cider.df[final.cider.df$`Region of origin` == 'North America','PLANTID']
 
