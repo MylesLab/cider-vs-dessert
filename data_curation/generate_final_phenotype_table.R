@@ -22,6 +22,7 @@ final_cider.df <-
 
 # only keep certain columns
 final_cider.df <- final_cider.df[,c(
+  "PI..no..",
   "Accession.name",
   "acidity_17_harv",
   "percent_acidity_17",
@@ -30,7 +31,7 @@ final_cider.df <- final_cider.df[,c(
   "weight_avg_17_harv",
   "juiciness_16_harv",
   "tpc",
-  "date_jul_16_harv",
+  "date_jul_17_harv",
   "flowering_jul_16_harv",
   "percent_firmness_avg_17",
   "Region.of.origin"
@@ -38,6 +39,7 @@ final_cider.df <- final_cider.df[,c(
 
 # cleanup the column names
 colnames(final_cider.df) <- c(
+  "PIID",
   "Name",
   "Acidity",
   "DeltaAcidity", # change in acidity during storage
