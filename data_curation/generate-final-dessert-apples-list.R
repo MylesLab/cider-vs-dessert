@@ -12,6 +12,7 @@
 library(dplyr)
 library(readxl)
 
+# the ABC phenotype data
 abc_pheno_tbl <- read_excel('data/raw/pheno_meta_data_abc.xlsx')
 
 # for attaching the PI ids
@@ -100,6 +101,7 @@ length(common_dessert_apples)
 common_dessert_pheno_dat <- data.frame()
 for(name in common_dessert_apples){
   print(name)
+  print(grep(name, abc_pheno_tbl$PLANTID))
   common_dessert_pheno_dat <- rbind(
     common_dessert_pheno_dat,
     abc_pheno_tbl[grep(name, abc_pheno_tbl$PLANTID),]
@@ -129,10 +131,10 @@ common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Pink Lady", common_d
 nrow(common_dessert_pheno_dat)
 # [1] 16
 
-colnames(common_dessert_pheno_dat)
-
 final_dessert.df <- left_join(common_dessert_pheno_dat, abc_pop_info)
 
+# checking to see which apples are the ones that have no PI ID and it turns out
+# all of them are from Kentville.
 final_dessert.df[which(is.na(final_dessert.df$ACNO)),c('PLANTID','origin','ACNO')]
 
 # writing the dessert apple phenotype table to file
