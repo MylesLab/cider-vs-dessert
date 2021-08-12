@@ -55,8 +55,9 @@ ggsave(
 ## MISSINGNESS BY PHENOTYPES ##
 ###############################
 
-phenotype_missingness.df <- NULL
-for(p_i in 3:ncol(final.df)-1){
+
+phenotype_avail.df <- NULL
+for(p_i in 4:ncol(final.df)-1){
   
   # get the phenotype name
   phenotype <- colnames(final.df)[p_i]
@@ -67,15 +68,15 @@ for(p_i in 3:ncol(final.df)-1){
   )
   curr_df$Phenotype <- phenotype
   
-  phenotype_missingness.df <-  rbind(phenotype_missingness.df, curr_df)
+  phenotype_avail.df <-  rbind(phenotype_avail.df, curr_df)
   
 }
 
 # cleaning up the data frame for plotting
-colnames(phenotype_missingness.df) <- c("AppleType", "Count", "Phenotype")
+colnames(phenotype_avail.df) <- c("AppleType", "Count", "Phenotype")
 
-missingness_by_phenotypes <- ggplot(
-  phenotype_missingness.df, aes(fill=AppleType, y=reorder(Phenotype, -Count), x=Count)
+avail_by_pheno_plot <- ggplot(
+  phenotype_avail.df, aes(fill=AppleType, y=reorder(Phenotype, -Count), x=Count)
 ) + 
   geom_bar(position="stack", stat="identity", alpha = 0.9) + 
   theme_avenir(grid =  F, panel_x = F, panel_y = F) + 
@@ -89,38 +90,31 @@ missingness_by_phenotypes <- ggplot(
     axis.line.y = element_line(colour="black", size = 0.2)
   ) + ylab("")
 ggsave(
-  filename = "figures/missing_data/data_missingness_by_phenotypes.png",
-  plot = missingness_by_phenotypes
+  filename = "figures/missing_data/data_availability_by_phenotypes.png",
+  plot = avail_by_pheno_plot
 )
 
 ############################
 ## MISSINGNESS BY SAMPLES ##
 ############################
 
-ptypes_missing <- NULL
-for(i in 1:nrow(final.df)){
-  ptypes <- final.df[i,c(2:11)]
-  num_missing <- sum(is.na(unlist(ptypes)))
-  pcent_missing <- ( num_missing / ncol(ptypes) ) * 100
-  print(paste0(i," -> ", pcent_missing))
-  ptypes_missing[i] <- pcent_missing
+
+traits <- 4:ncol(final.df)-1
+traits_missing <- NULL
+p_traits_missing <- NULL
+for(i in seq_len(nrow(final.df))){
+  
+  num_traits_miss <- sum(is.na(final.df[i,traits]))
+  p_traits_miss <- (num_traits_miss / length(traits) ) * 100
+  
+  traits_missing[i] <- num_traits_miss
+  p_traits_missing[i] <- p_traits_miss
+  
 }
 
-samples_dat <- as.data.frame(ptypes_missing)
-samples_missing_plot <- ggplot(
-  samples_dat,
-  aes(x = ptypes_missing)) +
-  geom_histogram(
-    bins = 15,
-    color = "black", fill="lightblue") +
-  theme_pubclean() +
-  xlab("Missingness (%)") + ylab("Number of samples") +
-  labs(title="Distibution of missingness by samples") +
-  theme(
-    plot.title = element_text(
-      hjust = 0.5, face="bold", family = "Helvetica", size =  17)
-  )
-ggsave(
-  filename = "figures/missing_data/samples_missingness_plot.png",
-  plot = samples_missing_plot
-)
+table(traits_missing)
+# 0  1  2  3  4 
+# 18  5 24  4  3
+
+# the missing ness threshold for samples is 50%. In other words, an accession needs
+# to have the data for at least 50% of the traits.
