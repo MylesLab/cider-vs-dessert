@@ -8,6 +8,21 @@ library(ggplot2)
 ## CIDER APPLES LIST CLEANUP ##
 ###############################
 
+NEW_COLNAMES <- c(
+  "PIID",
+  "Name",
+  "Acidity",
+  "DeltaAcidity", # change in acidity during storage
+  "SSC",
+  "Firmness",
+  "Weight",
+  "Juiciness",
+  "PhenolicContent",
+  "HarvestDate",
+  "FloweringDate",
+  "Softening" # % Change in firmness during storage
+)
+
 # get the final cider apple list
 final_cider.df <- read.table(
   'data/processed/final_cider_apple_phenotype_data.tsv',
@@ -32,21 +47,7 @@ final_cider.df <- final_cider.df[,c(
 )]
 
 # cleanup the column names
-colnames(final_cider.df) <- c(
-  "PIID",
-  "Name",
-  "Acidity",
-  "DeltaAcidity", # change in acidity during storage
-  "SSC",
-  "Firmness",
-  "Weight",
-  "Juiciness",
-  "PhenolicContent",
-  "HarvestDate",
-  "FloweringDate",
-  "Softening", # % Change in firmness during storage,
-  "AppleType"
-)
+colnames(final_cider.df) <- c(NEW_COLNAMES, "AppleType")
 
 nrow(final_cider.df)
 # [1] 83
@@ -78,20 +79,7 @@ final_dessert.df <- final_dessert.df[,c(
 )]
 
 # cleanup the column names
-colnames(final_dessert.df) <- c(
-  "PIID",
-  "Name",
-  "Acidity",
-  "DeltaAcidity", # change in acidity during storage
-  "SSC",
-  "Firmness",
-  "Weight",
-  "Juiciness",
-  "PhenolicContent",
-  "HarvestDate",
-  "FloweringDate",
-  "Softening" # % Change in firmness during storage,
-)
+colnames(final_dessert.df) <- NEW_COLNAMES
 
 # add AppleType column
 final_dessert.df$AppleType = "Dessert"
@@ -105,9 +93,26 @@ nrow(final_dessert.df)
 
 final.df <- rbind(final_cider.df, final_dessert.df)
 
+########################
+## SAMPLE FILTERATION ##
+########################
+
+# get the rows (accessions) with 50% or less missingness
+phenos <- 3:(ncol(final.df)-1)
+only_phenos_final.df <- final.df[,phenos]
+filtered_accessions <- which(rowSums(is.na(only_phenos_final.df)) <= 5)
+
+# filter the final dataframe
+final.df <- final.df[filtered_accessions,]
+
+####################
+## EXPORTING DATA ##
+####################
+
 # save the final table
 write.table(
   final.df,
   'data/processed/final_phenotype_table.tsv',
   row.names = FALSE
 )
+
