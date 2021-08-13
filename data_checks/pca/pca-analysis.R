@@ -12,6 +12,7 @@ library(ggbiplot)
 library(reshape2)
 library(ggpubr)
 library(dplyr)
+library(sqldf)
 library(RColorBrewer)
 
 # load the fancy ggplot theme
@@ -96,7 +97,10 @@ pc_fig1 <- ggarrange(
 ggsave(
   filename = "figures/pca/Figure-1_pca.png",
   plot = pc_fig1,
-  dpi = 600
+  dpi = 600,
+  width = 7.5,
+  height = 7,
+  limitsize = FALSE
 )
 
 ############################
@@ -113,4 +117,38 @@ ggsave(
   limitsize = FALSE
 )
 
-  
+# generate a nice table of statistics and p-values of the density plots
+nms <- head(colnames(pca_data), -1)
+den_stats <- data.frame()
+den_pvals <- data.frame()
+for (n in seq_along(nms)) {
+  name <- nms[n]
+  pvals <- as.numeric(dplots$stats[[name]]$pvals)
+  stats <- as.numeric(dplots$stats[[name]]$statistic)
+
+  den_pvals <- rbind(den_pvals, c(name, round(pvals, 2)))
+  den_stats <- rbind(den_stats, c(name, stats))
+}
+
+colnames(den_stats) <- c("Name", "EngVsDes", "FrVsDes", "EngVsFr")
+rownames(den_stats) <- nms
+
+colnames(den_pvals) <- c("Name", "EngVsDes", "FrVsDes", "EngVsFr")
+rownames(den_pvals) <- nms
+
+EngVsDesStr <- "p.EngVsDes||' (W='||s.EngVsDes||')' AS EngVsDes, "
+FrVsDesStr <- "p.FrVsDes||' (W='||s.FrVsDes||')' AS FrVsDes, "
+EngVsFr <- "p.EngVsFr||' (W='||s.EngVsFr||')' AS EngVsFr "
+sqlStr <- paste0(
+  "SELECT p.Name, ", EngVsDesStr, FrVsDesStr, EngVsFr,
+  "FROM den_pvals AS p JOIN den_stats AS s ON p.Name = s.Name"
+)
+
+density_res <- as.data.frame(sqldf::sqldf(sqlStr))
+
+utils::write.table(
+  density_res,
+  'data/processed/density_analysis_statistics.tsv',
+  sep = "\t",
+  row.names = FALSE
+)

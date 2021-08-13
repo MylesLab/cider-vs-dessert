@@ -4,7 +4,11 @@
 .Rhistory
 .Rproj.user
 
+# IDE related
+.idea
+
 # Other 
 lit-review
 manuscript
 biol5062-material
+

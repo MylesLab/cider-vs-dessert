@@ -17,11 +17,11 @@ GLOBAL_THEME <- theme_avenir(
   axis_col = "black",
   ticks = T
 ) + theme(
-  axis.text.x = element_text(size = 13, hjust = 0.5, vjust = -0.5),
-  axis.text.y = element_text(size = 13, hjust = -0.5, vjust = 0.5),
-  axis.title.x = element_text(size = 12, margin = margin(t = 10, r = 0, b = 0, l = 0)),
-  axis.title.y = element_text(size = 12, margin = margin(t = 0, r = 10, b = 0, l = 0)),
-  legend.text = element_text(size = 12)
+  axis.text.x = element_text(size = 10, hjust = 0.5, vjust = -0.5),
+  axis.text.y = element_text(size = 10, hjust = -0.5, vjust = 0.5),
+  axis.title.x = element_text(size = 10, margin = margin(t = 10, r = 0, b = 0, l = 0)),
+  axis.title.y = element_text(size = 10, margin = margin(t = 0, r = 10, b = 0, l = 0)),
+  legend.text = element_text(size = 10)
 )
 
 generate_pca_violin_plots <- function(dat, pov) {
@@ -32,6 +32,16 @@ generate_pca_violin_plots <- function(dat, pov) {
   min_y <- -7
   for (component in components) {
     idx <- idx + 1
+
+    des_dat <- dat[which(dat$AppleType == "Dessert"), component]
+    eng_dat <- dat[which(dat$AppleType == "English"), component]
+    frn_dat <- dat[which(dat$AppleType == "French"), component]
+
+    print(component)
+    print(paste0("W( Eng_vs_Des ) = ", wilcox.test(eng_dat, des_dat)$statistic))
+    print(paste0("W( Frn_vs_Des ) = ", wilcox.test(frn_dat, des_dat)$statistic))
+    print(paste0("W( Eng_vs_Frn ) = ", wilcox.test(eng_dat, frn_dat)$statistic))
+    print('---')
 
     plots[[idx]] <- ggplot(dat, aes_string(x = "AppleType", y = get(component, dat))) +
       geom_violin(aes(fill = AppleType, color = AppleType), trim = FALSE,
