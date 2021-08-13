@@ -13,14 +13,14 @@ library(readxl)
 library(xlsx)
 
 # load the data
-final.df <- read.table(
-  'data/processed/final_phenotype_table.tsv',
+final.df <- utils::read.table(
+  '../data/processed/final_phenotype_table.tsv',
   header = TRUE
 )
 
 all_phenotype_names <- head(colnames(final.df)[-1],n=-1)
 
-sample_size_table = as.data.frame(matrix(NA, nrow=10,ncol=3))
+sample_size_table <- as.data.frame(matrix(NA, nrow = 10, ncol = 3))
 colnames(sample_size_table) <- c("Dessert", "English", "French")
 rownames(sample_size_table) <- all_phenotype_names
 
@@ -39,5 +39,5 @@ for(i in seq_along(all_phenotype_names)){
 # write sample sizes table
 write.xlsx(
   sample_size_table,
-  'data/processed/tbl-sample-sizes.xlsx'
+  '../data/processed/tbl-sample-sizes.xlsx'
 )

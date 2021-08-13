@@ -15,9 +15,8 @@ library(dplyr)
 library(sqldf)
 library(RColorBrewer)
 
-# load the fancy ggplot theme
-source("themes/theme_avenir.R")
-source("data_checks/pca/utils.R")
+# load the utilities
+source("analyses/utils.R")
 
 # load the data
 final.df <- utils::read.table(

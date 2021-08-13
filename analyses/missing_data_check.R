@@ -15,7 +15,7 @@ library(RColorBrewer)
 
 source('themes/theme_avenir.R')
 
-final.df <- read.table(
+final.df <- utils::read.table(
   'data/processed/final_phenotype_table.tsv',
   header = TRUE
 )
@@ -98,22 +98,21 @@ ggsave(
 ## MISSINGNESS BY SAMPLES ##
 ############################
 
-
 traits <- 4:ncol(final.df)-1
 traits_missing <- NULL
 p_traits_missing <- NULL
 for(i in seq_len(nrow(final.df))){
-  
+
   num_traits_miss <- sum(is.na(final.df[i,traits]))
   p_traits_miss <- (num_traits_miss / length(traits) ) * 100
-  
+
   traits_missing[i] <- num_traits_miss
   p_traits_missing[i] <- p_traits_miss
-  
+
 }
 
 table(traits_missing)
-# 0  1  2  3  4 
+# 0  1  2  3  4
 # 18  5 24  4  3
 
 # the missing ness threshold for samples is 50%. In other words, an accession needs
