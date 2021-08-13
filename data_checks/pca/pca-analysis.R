@@ -18,102 +18,39 @@ library(RColorBrewer)
 source("themes/theme_avenir.R")
 source("data_checks/pca/utils.R")
 
-# load cider data
-cider_data <- read.table(
-  "data/processed/final_cider_apple_phenotype_data.tsv",
+# load the data
+final.df <- utils::read.table(
+  "data/processed/final_phenotype_table.tsv",
   header = TRUE
 )
-
 
 #######################
 ## GENERATE PCA DATA ##
 #######################
 
 # see the distribution of apples
-count(cider_data$Region.of.origin)
-# x freq
-# 1 England   35
-# 2  France   48
+table(final.df$AppleType)
+# Dessert England  France 
+# 14      11      29 
 
 # only get the columns that can be used for PCA
-cider_pca_data <- cider_data[, c(23:ncol(cider_data), 11)]
+pca_data <- final.df[, 3:ncol(final.df)]
 
-# add use category
-cider_pca_data$use <- "Cider"
+nrow(pca_data)
+# [1] 54
 
-nrow(cider_pca_data)
-# [1] 83
-
-# load dessert data
-dessert_data <- read.table(
-  "data/processed/final_dessert_apple_phenotype_data.tsv",
-  header = TRUE
-)
-
-# only get the columns that can be used for PCA
-dessert_data_cols <- 10:(ncol(dessert_data)-1)
-dessert_pca_data <- dessert_data[, dessert_data_cols]
-
-# add region of origin category
-dessert_pca_data$Region.of.origin <- "Dessert"
-
-
-nrow(dessert_pca_data)
-# [1] 16
-
-# gather both cider and desset apple PCA data together
-all_pca_data <- rbind(cider_pca_data, dessert_pca_data)
-
-# get the total distribution of apples by origin
-count(all_pca_data$Region.of.origin)
-# x freq
-# 1 Dessert   16
-# 2 England   35
-# 3  France   48
-
-nrow(all_pca_data)
-# [1] 99
-
-# only keep certain columns
-all_pca_data <- all_pca_data[
-  ,
-  c(
-    "acidity_17_harv",
-    "percent_acidity_17",
-    "brix_17_harv",
-    "firmness_avg_17_harv",
-    "weight_avg_17_harv",
-    "juiciness_16_harv",
-    "tpc",
-    "date_jul_16_harv",
-    "flowering_jul_16_harv",
-    "percent_firmness_avg_17",
-    "Region.of.origin"
-  )
-]
-
-colnames(all_pca_data) <- c(
-  "Acidity",
-  "DeltaAcidity", # change in acidity during storage
-  "SSC",
-  "Firmness",
-  "Weight",
-  "Juiciness",
-  "PhenolicContent",
-  "HarvestDate",
-  "FloweringDate",
-  "Softening", # % Change in firmness during storage,
-  "RegionOfOrigin"
-)
+table(pca_data$AppleType)
+# Dessert England  France
+# 14      11      29
 
 ##################
 ## PCA ANALYSIS ##
 ##################
 
-pca_cols_idx <- head(seq_along(all_pca_data), -1)
-pca_data <- scale(all_pca_data[, pca_cols_idx]) # scale and center the data
-pca_data[is.na(pca_data)] <- 0
-pca <- prcomp(pca_data)
+pca_cols_idxs <- head(seq_len(ncol(pca_data)), -1)
+pca_data_matrix <- scale(pca_data[, pca_cols_idxs]) # scale and center the data
+pca_data_matrix[is.na(pca_data_matrix)] <- 0
+pca <- prcomp(pca_data_matrix)
 
 # scree plot
 vars_transformed <- apply(pca$x, 2, var)
@@ -138,27 +75,24 @@ ggsave(filename = "figures/pca/scree_plot.png", plot = scree_plot)
 ## GENERATE PC BIPLOT AND VIOLIN PLOTS ##
 #########################################
 
-# TODO: WHY ARE PCA PLOTS WEIRD
-
-pc1_pc2 <- generate_pca_biplot(as.data.frame(pca$x), all_pca_data, c("PC1","PC2"), pov)
-pc1_pc3 <- generate_pca_biplot(as.data.frame(pca$x), all_pca_data, c("PC1","PC3"), pov)
+pc1_pc2 <- generate_pca_biplot(as.data.frame(pca$x), pca_data, c("PC1", "PC2"), pov)
+pc1_pc3 <- generate_pca_biplot(as.data.frame(pca$x), pca_data, c("PC1", "PC3"), pov)
 
 PCs <- data.frame(
   PC1 = as.numeric(pca$x[, 1]),
   PC2 = as.numeric(pca$x[, 2]),
   PC3 = as.numeric(pca$x[, 3]),
-  AppleType = all_pca_data$RegionOfOrigin
+  AppleType = final.df$AppleType
 )
-PCs[which(PCs$AppleType == "England"),'AppleType'] <- "English"
-PCs[which(PCs$AppleType == "France"),'AppleType'] <- "French"
+PCs[which(PCs$AppleType == "England"), 'AppleType'] <- "English"
+PCs[which(PCs$AppleType == "France"), 'AppleType'] <- "French"
 PCs$AppleType <- as.factor(PCs$AppleType)
 
 pc_fig1 <- ggarrange(
-  ggarrange(pc1_pc2, pc1_pc3, common.legend = TRUE, labels = c("A","B")),
-  generate_pca_violin_plots(PCs,pov),
-  nrow = 2, ncol = 1, labels = c("","C")
+  ggarrange(pc1_pc2, pc1_pc3, common.legend = TRUE, labels = c("A", "B")),
+  generate_pca_violin_plots(PCs, pov),
+  nrow = 2, ncol = 1, labels = c("", "C")
 )
-print(pc_fig1)
 ggsave(
   filename = "figures/pca/Figure-1_pca.png",
   plot = pc_fig1,
@@ -168,12 +102,15 @@ ggsave(
 ############################
 ## GENERATE DENSITY PLOTS ##
 ############################
-dplots <- create_density_plots(all_pca_data)
+dplots <- create_density_plots(pca_data)
 
 ggsave(
   filename = 'figures/density/fig-2_density_plots.png',
   plot = dplots$all_plots,
-  dpi = 600
+  dpi = 600,
+  width = 6.92,
+  height = 7,
+  limitsize = FALSE
 )
 
   
