@@ -31,12 +31,12 @@ abc_pop_info <- unique(abc_pop_info)
 # Source: 
 # https://www.agr.gc.ca/eng/canadas-agriculture-sectors/horticulture/market-information-infohort/apple-reports/?id=1605706730291
 
-canada_dessert_apples = c(
+canada_dessert_apples <- c(
   "Ambrosia",
   "Cortland",
   "Crispin",
   "Empire",
-  "Fuji", 
+  "Fuji",
   "Gala",
   "Golden Delicious",
   "Honeycrisp",
@@ -60,7 +60,7 @@ length(canada_dessert_apples)
 # Source: 
 # https://www.agmrc.org/commodities-products/fruits/apples#:~:text=The%20United%20States%20grows%20approximately,U.S.%20Apple%20Association%2C%202018).
 
-us_dessert_apples = c(
+us_dessert_apples <- c(
   "Red Delicious",
   "Gala",
   "Granny Smith",

@@ -1,3 +1,4 @@
+library(ggplot2)
 #' Minimal ggplot2 theme using Avenir fonts
 #' Functionally an Avenir spin on (https://github.com/hrbrmstr/hrbrthemes/)
 #'
@@ -33,6 +34,7 @@
 #'     caption = label_wrap_gen(120)("wow when do you actually ever include captions in your ggplots??? just throw it in your Fig. 1 description and keep it moving. but fine, this is what it would look like if you insist.")
 #'     )
 #' }
+
 theme_avenir <- function(
   base_family = "Avenir", base_size = 10,
   plot_title_family = base_family, plot_title_size = base_size * 1.4,
@@ -46,8 +48,7 @@ theme_avenir <- function(
   caption_family = "Avenir",
   caption_size = base_size * 0.8,
   caption_face = "plain", caption_margin = 5,
-  caption = NULL,
-  axis_text_size = base_size + 5,
+  axis_text_size = base_size,
   axis_title_x = T,
   axis_title_y = T,
   axis_title_family = base_family,
@@ -58,23 +59,23 @@ theme_avenir <- function(
   grid_col = "#cccccc", grid = F, panel_x = F, panel_y = T,
   axis_col = "#cccccc", axis = FALSE, ticks = FALSE) {
   ret <- ggplot2::theme_minimal(base_family = base_family, base_size = base_size)
-  
+
   ret <- ret + theme(legend.background = element_blank())
   ret <- ret + theme(legend.key = element_blank())
-  
+
   if (grid == F) {
-    ret <- ret + theme(panel.grid.major.x = element_blank(),panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(),panel.grid.minor.y = element_blank())
+    ret <- ret + theme(panel.grid = element_blank())
   }
-  
+
   if (grid == T | panel_x == T) {
     ret <- ret + theme(panel.grid.major.x = element_line(color = grid_col, size = 0.2))
   }
   if (grid == T | panel_y == T) {
     ret <- ret + theme(panel.grid.major.y = element_line(color = grid_col, size = 0.2))
   } else {
-    ret <- ret + theme(panel.grid.major.x = element_blank(),panel.grid.major.y = element_blank())
+    ret <- ret + theme(panel.grid = element_blank())
   }
-  
+
   if (inherits(axis, "character") | axis == TRUE) {
     ret <- ret + theme(axis.line = element_line(color = axis_col, size = 0.15))
     if (inherits(axis, "character")) {
@@ -96,7 +97,7 @@ theme_avenir <- function(
   } else {
     ret <- ret + theme(axis.line = element_blank())
   }
-  
+
   if (!ticks) {
     ret <- ret + theme(axis.ticks = element_blank())
     ret <- ret + theme(axis.ticks.x = element_blank())
@@ -107,10 +108,10 @@ theme_avenir <- function(
     ret <- ret + theme(axis.ticks.y = element_line(size = 0.15))
     ret <- ret + theme(axis.ticks.length = grid::unit(5, "pt"))
   }
-  
-  xj <- switch(substr(axis_title_just, 0, 0), b = 0, l = 0, m = 0.5, c = 0.5, r = 1, t = 1)
-  yj <- switch(substr(axis_title_just, 0, 0), b = 0, l = 0, m = 0.5, c = 0.5, r = 1, t = 1)
-  
+
+  xj <- switch(tolower(substr(axis_title_just, 1, 1)), b = 0, l = 0, m = 0.5, c = 0.5, r = 1, t = 1)
+  yj <- switch(tolower(substr(axis_title_just, 2, 2)), b = 0, l = 0, m = 0.5, c = 0.5, r = 1, t = 1)
+
   ret <- ret + theme(axis.text.x = element_text(size = axis_text_size, margin = margin(t = 0)))
   ret <- ret + theme(axis.text.y = element_text(size = axis_text_size, margin = margin(r = 0)))
   ret <- ret + theme(axis.title = element_text(size = axis_title_size, family = axis_title_family))
@@ -155,6 +156,6 @@ theme_avenir <- function(
     family = caption_family, face = caption_face
   ))
   ret <- ret + theme(plot.margin = plot_margin)
-  
+
   ret
 }

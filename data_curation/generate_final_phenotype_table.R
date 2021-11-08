@@ -82,7 +82,7 @@ final_dessert.df <- final_dessert.df[,c(
 colnames(final_dessert.df) <- NEW_COLNAMES
 
 # add AppleType column
-final_dessert.df$AppleType = "Dessert"
+final_dessert.df$AppleType <- "Dessert"
 
 nrow(final_dessert.df)
 # [1] 16

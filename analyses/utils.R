@@ -4,25 +4,6 @@
 # Created on: 2021-07-23
 
 library(ggplot2)
-source("themes/theme_avenir.R")
-
-GLOBAL_PALETTE <- "PuOr"
-GLOBAL_DIRECTION <- -1
-GLOBAL_ALPHA <- 0.6
-GLOBAL_THEME <- theme_avenir(
-  panel_x = F,
-  panel_y = F,
-  grid = F,
-  axis = T,
-  axis_col = "black",
-  ticks = T
-) + theme(
-  axis.text.x = element_text(size = 10, hjust = 0.5, vjust = -0.5),
-  axis.text.y = element_text(size = 10, hjust = -0.5, vjust = 0.5),
-  axis.title.x = element_text(size = 10, margin = margin(t = 10, r = 0, b = 0, l = 0)),
-  axis.title.y = element_text(size = 10, margin = margin(t = 0, r = 10, b = 0, l = 0)),
-  legend.text = element_text(size = 10)
-)
 
 generate_pca_violin_plots <- function(dat, pov) {
   components <- c("PC1", "PC2", "PC3")
@@ -50,6 +31,7 @@ generate_pca_violin_plots <- function(dat, pov) {
       stat_compare_means(
         method = "wilcox.test",
         label = sprintf("p=%s", "p.format"),
+        hide.ns = TRUE,
         comparisons = list(c("Dessert", "English"), c("Dessert", "French"), c("English", "French")),
         label.y = c(4.8, 5.8, 6.8)
       ) +
@@ -66,9 +48,9 @@ generate_pca_violin_plots <- function(dat, pov) {
 
 generate_pca_biplot <- function(pca, data, choices, pov) {
   GLOBAL_LABELS <- c(
-    paste0("Dessert (N=", as.numeric(table(data$AppleType)["Dessert"]), ")"),
-    paste0("English (N=", as.numeric(table(data$AppleType)["England"]), ")"),
-    paste0("French (N=", as.numeric(table(data$AppleType)["France"]), ")")
+    paste0("Common Dessert (N=", as.numeric(table(data$AppleType)["Dessert"]), ")"),
+    paste0("English Cider (N=", as.numeric(table(data$AppleType)["English"]), ")"),
+    paste0("French Cider (N=", as.numeric(table(data$AppleType)["French"]), ")")
   )
 
   plot <- ggplot(
@@ -90,7 +72,7 @@ generate_pca_biplot <- function(pca, data, choices, pov) {
     ) +
     scale_shape_manual(
       name = "Apple Type",
-      values = c(21, 23, 24),
+      values = c(21, 23, 23),
       labels = GLOBAL_LABELS
     ) +
     GLOBAL_THEME

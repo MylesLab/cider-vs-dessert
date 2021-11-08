@@ -7,16 +7,11 @@
 ################################
 ## LIBRARY IMPORT & LOAD DATA ##
 ################################
-
-library(ggbiplot)
-library(reshape2)
 library(ggpubr)
-library(dplyr)
-library(sqldf)
-library(RColorBrewer)
 
 # load the utilities
 source("analyses/utils.R")
+source('themes/theme_main.R')
 
 # load the data
 final.df <- utils::read.table(
@@ -31,6 +26,15 @@ final.df <- utils::read.table(
 # see the distribution of apples
 table(final.df$AppleType)
 # Dessert England  France 
+# 14      11      29
+
+# change the names of categories
+final.df[which(final.df$AppleType == "England"),'AppleType'] <- "English"
+final.df[which(final.df$AppleType == "France"),'AppleType'] <- "French"
+
+# see the distribution of apples again
+table(final.df$AppleType)
+# Dessert English  French 
 # 14      11      29 
 
 # only get the columns that can be used for PCA
@@ -38,10 +42,6 @@ pca_data <- final.df[, 3:ncol(final.df)]
 
 nrow(pca_data)
 # [1] 54
-
-table(pca_data$AppleType)
-# Dessert England  France
-# 14      11      29
 
 ##################
 ## PCA ANALYSIS ##
@@ -64,12 +64,13 @@ scree_plot <- ggplot(pov.df, aes(x = pc, y = pov)) +
   xlab("Principal Components (PC)") +
   ylab("Cumulative Variance (%)") +
   ggtitle("PCA Scree Plot") +
+  GLOBAL_THEME +
   theme(
     plot.title = element_text(hjust = 0.5, size = 18),
     axis.title.x = element_text(hjust = 0.5, size = 12),
     axis.title.y = element_text(hjust = 0.5, size = 12)
   )
-ggsave(filename = "figures/pca/scree_plot.png", plot = scree_plot)
+ggsave(filename = "figures/pca/scree_plot.png", plot = scree_plot, bg="white")
 
 #########################################
 ## GENERATE PC BIPLOT AND VIOLIN PLOTS ##
@@ -84,8 +85,6 @@ PCs <- data.frame(
   PC3 = as.numeric(pca$x[, 3]),
   AppleType = final.df$AppleType
 )
-PCs[which(PCs$AppleType == "England"), 'AppleType'] <- "English"
-PCs[which(PCs$AppleType == "France"), 'AppleType'] <- "French"
 PCs$AppleType <- as.factor(PCs$AppleType)
 
 pc_fig1 <- ggarrange(
@@ -99,7 +98,8 @@ ggsave(
   dpi = 600,
   width = 7.5,
   height = 7,
-  limitsize = FALSE
+  limitsize = FALSE,
+  bg = "white"
 )
 
 ############################
