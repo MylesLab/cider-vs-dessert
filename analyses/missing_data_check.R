@@ -11,9 +11,9 @@
 library(ggplot2)
 library(ggpubr)
 library(reshape2)
-library(RColorBrewer)
+library(viridis)
 
-source('themes/theme_avenir.R')
+source('themes/theme_main.R')
 
 final.df <- utils::read.table(
   'data/processed/final_phenotype_table.tsv',
@@ -26,29 +26,23 @@ final.df <- utils::read.table(
 
 # organize data for bar plot
 bar_dat <- melt(data.frame(
-  England=sum(final.df$AppleType == "England"),
-  France=sum(final.df$AppleType == "France"),
-  Dessert=sum(final.df$AppleType == "Dessert")
+  English = sum(final.df$AppleType == "England"),
+  French = sum(final.df$AppleType == "France"),
+  Dessert = sum(final.df$AppleType == "Dessert")
 ))
 
 # generate the bar plot
-data_distribution_barplot <- ggplot(bar_dat, aes(x=variable, y=value, fill=variable)) + 
-  geom_text(aes(label=value), vjust=-0.2) + 
-  geom_bar(stat = "identity", alpha = 0.8) + 
-  theme_avenir() + 
-  theme(
-    plot.title = element_text(
-      face = "bold", 
-      size=18, 
-      hjust=0.5
-    )
-  ) + 
-  xlab("Apple Types") + 
-  ylab("Count") + 
+data_distribution_barplot <- ggplot(bar_dat, aes(x = variable, y = value, fill = variable)) +
+  geom_text(aes(label = value), vjust = -0.2) +
+  geom_bar(stat = "identity", alpha = 0.8) +
+  GLOBAL_THEME +
+  xlab("Apple Types") +
+  ylab("Count") +
   scale_fill_discrete(name = "Apple Types")
 ggsave(
   filename = "figures/missing_data/data_distribution_barplot.png",
-  plot = data_distribution_barplot
+  plot = data_distribution_barplot,
+  bg = "white"
 )
 
 ###############################
@@ -67,31 +61,40 @@ for(p_i in 4:ncol(final.df)-1){
     table(final.df[which(!is.na(final.df[,phenotype])),'AppleType'])
   )
   curr_df$Phenotype <- phenotype
-  
-  phenotype_avail.df <-  rbind(phenotype_avail.df, curr_df)
-  
+
+  phenotype_avail.df <- rbind(phenotype_avail.df, curr_df)
+
 }
 
 # cleaning up the data frame for plotting
 colnames(phenotype_avail.df) <- c("AppleType", "Count", "Phenotype")
 
+phenotype_avail.df$AppleType <- as.character(phenotype_avail.df$AppleType)
+
+# update the names for plotting
+phenotype_avail.df[phenotype_avail.df$AppleType == "England", 'AppleType'] <- "English"
+phenotype_avail.df[phenotype_avail.df$AppleType == "France", 'AppleType'] <- "French"
+
 avail_by_pheno_plot <- ggplot(
-  phenotype_avail.df, aes(fill=AppleType, y=reorder(Phenotype, -Count), x=Count)
-) + 
-  geom_bar(position="stack", stat="identity", alpha = 0.9) + 
-  theme_avenir(grid =  F, panel_x = F, panel_y = F) + 
-  scale_fill_brewer(palette = "Pastel1") + 
+  phenotype_avail.df, aes(fill = AppleType, y = reorder(Phenotype, -Count), x = Count)
+) +
+  geom_bar(position = "stack", stat = "identity", alpha = 0.9) +
+  GLOBAL_THEME +
   theme(
-    axis.text.y = element_text(size = 10), 
+    axis.text.y = element_text(size = 10, hjust = 1),
+    axis.ticks.y = element_blank(),
     axis.text.x = element_text(size = 10),
     axis.title.x = element_text(size = 12),
     axis.title.y = element_text(size = 12),
-    axis.line.x = element_line(colour="black", size = 0.2),
-    axis.line.y = element_line(colour="black", size = 0.2)
-  ) + ylab("")
+    axis.line.x = element_line(colour = "black", size = 0.2),
+    axis.line.y = element_line(colour = "black", size = 0.2)
+  ) +
+  ylab("") +
+  xlab("Sample Count")
 ggsave(
   filename = "figures/missing_data/data_availability_by_phenotypes.png",
-  plot = avail_by_pheno_plot
+  plot = avail_by_pheno_plot,
+  bg = "white"
 )
 
 ############################
