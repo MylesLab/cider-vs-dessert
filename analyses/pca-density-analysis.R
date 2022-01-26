@@ -18,6 +18,10 @@ final.df <- utils::read.table(
   "data/processed/final_phenotype_table.tsv",
   header = TRUE
 )
+dim(final.df)
+# [1] 54 13
+
+colnames(final.df)
 
 #######################
 ## GENERATE PCA DATA ##
@@ -40,8 +44,8 @@ table(final.df$AppleType)
 # only get the columns that can be used for PCA
 pca_data <- final.df[, 3:ncol(final.df)]
 
-nrow(pca_data)
-# [1] 54
+dim(pca_data)
+# [1] 54 11
 
 ##################
 ## PCA ANALYSIS ##
@@ -54,7 +58,7 @@ pca <- prcomp(pca_data_matrix)
 
 # scree plot
 vars_transformed <- apply(pca$x, 2, var)
-pov <- (vars_transformed / sum(vars_transformed)) * 100
+pov <- (vars_transformed / sum(vars_transformed)) * 100 # proportion of variance
 pov.df <- data.frame(pc = seq(1, 10), pov = pov)
 scree_plot <- ggplot(pov.df, aes(x = pc, y = pov)) +
   geom_line() +

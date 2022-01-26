@@ -5,6 +5,8 @@
 
 library(ggplot2)
 
+source('themes/theme_main.R')
+
 generate_pca_violin_plots <- function(dat, pov) {
   components <- c("PC1", "PC2", "PC3")
   plots <- list()
@@ -53,13 +55,16 @@ generate_pca_biplot <- function(pca, data, choices, pov) {
     paste0("French Cider (N=", as.numeric(table(data$AppleType)["French"]), ")")
   )
 
+  pca$AppleType <- data$AppleType
+
   plot <- ggplot(
     pca,
-    aes(
-      x = PC1,
-      y = PC2,
-      fill = data$AppleType,
-      shape = data$AppleType)
+    aes_string(
+      x = choices[1],
+      y = choices[2],
+      fill = "AppleType",
+      shape = "AppleType"
+    )
   ) +
     geom_point(size = 3, alpha = GLOBAL_ALPHA) +
     xlab(sprintf("%s (%0.1f%%)", choices[1], pov[choices[1]])) +
@@ -81,28 +86,94 @@ generate_pca_biplot <- function(pca, data, choices, pov) {
   return(plot)
 }
 
-create_density_plots <- function(df) {
+create_arrow_plot <- function(is_arrow, direction, left_text, right_text) {
 
-  df[which(df$AppleType == 'England'), 'AppleType'] <- 'English'
-  df[which(df$AppleType == 'France'), 'AppleType'] <- 'French'
+  annotations <- data.frame(
+    xpos = c(-Inf, Inf),
+    ypos = c(Inf, Inf),
+    annotateText = c(left_text, right_text),
+    hjustvar = c(-0.1, 1.2),
+    vjustvar = c(1.5, 1.5))
+
+  THEME <- GLOBAL_THEME +
+    theme(
+      axis.ticks.x = element_blank(),
+      axis.ticks.y = element_blank(),
+      axis.text.x = element_blank(),
+      axis.text.y = element_blank(),
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      panel.border = element_rect(color = "black", fill = NA),
+      aspect.ratio = 0.1
+    )
+
+  if (is_arrow) {
+
+    arrow_func = arrow(ends = ifelse(direction == "left", "first", "last"))
+
+    plt <- ggplot() +
+      geom_segment(
+        data.frame(x1 = c(1), y1 = c(1), y2 = c(1)),
+        mapping = aes(x = x1, y = y1, xend = x1 + x1, yend = y1),
+        arrow = arrow_func, size = 2, color = "black") +
+      geom_text(data = annotations, aes(x = xpos, y = ypos, hjust = hjustvar, vjust = vjustvar, label = annotateText)) +
+      GLOBAL_THEME +
+      theme(
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        panel.border = element_rect(color = "black", fill = NA),
+        aspect.ratio = 0.1
+      ) +
+      xlab("") +
+      ylab("") +
+      scale_x_continuous(expand = c(0, 0)) +
+      scale_y_continuous(expand = c(0, 0))
+
+  } else {
+    plt <- ggplot() +
+      geom_segment(
+        data.frame(x1 = c(1), y1 = c(1), y2 = c(1)),
+        mapping = aes(x = x1, y = y1, xend = x1 + x1, yend = y1),
+        arrow = NULL, size = 2, color = "grey") +
+      geom_text(data = annotations, aes(x = xpos, y = ypos, hjust = hjustvar, vjust = vjustvar, label = annotateText)) +
+      GLOBAL_THEME +
+      theme(
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        panel.border = element_rect(color = "black", fill = NA),
+        aspect.ratio = 0.1
+      ) +
+      xlab("") +
+      ylab("")
+  }
+
+
+  return(plt)
+}
+
+create_density_plots <- function(dframe) {
 
   GLOBAL_LABELS <- c(
-    paste0("Dessert (N=", as.numeric(table(df$AppleType)["Dessert"]), ")"),
-    paste0("English (N=", as.numeric(table(df$AppleType)["English"]), ")"),
-    paste0("French (N=", as.numeric(table(df$AppleType)["French"]), ")")
+    paste0("Common Dessert (N=", as.numeric(table(dframe$AppleType)["Dessert"]), ")"),
+    paste0("English Cider (N=", as.numeric(table(dframe$AppleType)["English"]), ")"),
+    paste0("French Cider (N=", as.numeric(table(dframe$AppleType)["French"]), ")")
   )
 
 
   pretty_labels <- list(
     Acidity = "Acidity (g/mL)",
     DeltaAcidity = "Δ Acidity (%)",
-    SSC = "Sweetness (%)",
-    Firmness = "Firmness (km / cm²)",
+    SSC = "Soluble Solids (Brix)",
+    Firmness = "Firmness (kg / cm²)",
     Weight = "Weight (g)",
     Juiciness = "Juciness (%)",
     PhenolicContent = "Phenolic Content (µmol/g)",
-    HarvestDate = "Harvest Date (julian days)",
-    FloweringDate = "Flowering Date (julian days)",
+    HarvestDate = "Harvest Date (Julian days)",
+    FloweringDate = "Flowering Date (Julian days)",
     Softening = "Δ Firmness (%)"
   )
 
@@ -110,12 +181,12 @@ create_density_plots <- function(df) {
   return_plots <- list()
   stats <- list()
   idx <- 1
-  all_pheno_names <- names(df[head(seq_along(df), -1)])
+  all_pheno_names <- names(dframe[head(seq_along(dframe), -1)])
   for (name in all_pheno_names) {
 
-    des_ph <- df[which(df[, 'AppleType'] == 'Dessert'), name]
-    fr_ph <- df[which(df[, 'AppleType'] == 'French'), name]
-    eng_ph <- df[which(df[, 'AppleType'] == 'English'), name]
+    des_ph <- dframe[which(dframe[, 'AppleType'] == 'Dessert'), name]
+    fr_ph <- dframe[which(dframe[, 'AppleType'] == 'French'), name]
+    eng_ph <- dframe[which(dframe[, 'AppleType'] == 'English'), name]
 
     # p-values
     p_des_vs_eng <- (wilcox.test(des_ph, eng_ph)$p.value) * 30
@@ -131,7 +202,8 @@ create_density_plots <- function(df) {
     w_des_vs_fr <- wilcox.test(des_ph, fr_ph)$statistic
     w_eng_vs_fr <- wilcox.test(eng_ph, fr_ph)$statistic
 
-    plt <- ggplot(data = df, aes_string(x = get(name, df))) +
+
+    plt <- ggplot(data = dframe, aes_string(x = get(name, dframe))) +
       geom_density(alpha = GLOBAL_ALPHA, aes(fill = AppleType)) +
       GLOBAL_THEME +
       scale_fill_brewer(
@@ -142,6 +214,24 @@ create_density_plots <- function(df) {
       ) +
       xlab(pretty_labels[[ name ]]) +
       ylab("Density")
+
+    if (p_des_vs_eng <= 0.05) {
+      des_vs_eng_plot <- create_arrow_plot(TRUE, "left", "Common Dessert", "English Cider")
+    } else {
+      des_vs_eng_plot <- create_arrow_plot(FALSE, "left", "Common Dessert", "English Cider")
+    }
+
+    if (p_des_vs_fr <= 0.05) {
+      des_vs_fr_plot <- create_arrow_plot(TRUE, "left", "Common Dessert", "French Cider")
+    } else {
+      des_vs_fr_plot <- create_arrow_plot(FALSE, "left", "Common Dessert", "French Cider")
+    }
+
+    if (p_eng_vs_fr <= 0.05) {
+      eng_vs_fr_plot <- create_arrow_plot(TRUE, "left", "English Cider", "French Cider")
+    } else {
+      eng_vs_fr_plot <- create_arrow_plot(FALSE, "left", "English Cider", "French Cider")
+    }
 
     return_plots[[ name ]] <- plt
     stats [[ name ]] <-
@@ -154,7 +244,9 @@ create_density_plots <- function(df) {
     idx <- idx + 1
   }
 
-  den_plots <- ggarrange(plotlist = plots, ncol = 2, nrow = 5, common.legend = TRUE)
+  den_plots <- ggarrange(plotlist = plots, ncol = 1, nrow = 10, common.legend = TRUE)
 
   return(list(all_plots = den_plots, single_plot = return_plots, stats = stats))
 }
+
+
