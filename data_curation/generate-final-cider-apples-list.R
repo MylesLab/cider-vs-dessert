@@ -13,7 +13,10 @@ library(readxl)
 ## DATA LOADING ##
 ##################
 
-# load the gpeck data
+# load the data from the following paper
+# Kumar, Shanthanu K, Nathan W, Laura D, Kenong X, and Gregory P 2021. 
+# “Classifying Cider Apple Germplasm Using Genetic Markers for Fruit Acidity.” 
+# J. Amer. Soc. Hort. Sci. 1 (aop): 1–16.
 gpeck_data <- read_excel(
   'data/raw/DOI:10.21273-JASHS05056/cider_apple_data_pgreg.xlsx',
 )
@@ -24,10 +27,17 @@ nrow(gpeck_data)
 # the data correctly loaded.
 
 # load the ABC data with PI ids 
-abc_pop_info <- read_excel('data/raw/20200204_abc_pop_info.xlsx')
+abc_pop_info <- read_excel(
+  'data/raw/20200204_abc_pop_info.xlsx',
+  col_types = "text"
+)
+dim(abc_pop_info)
+# [1] 3988 12
 
 # load the ABC phenotype table
 abc_pheno_tbl <- read_excel('data/raw/pheno_meta_data_abc.xlsx')
+dim(abc_pheno_tbl)
+# [1] 1119 48
 
 ###################
 ## DATA CURATION ##
@@ -35,7 +45,7 @@ abc_pheno_tbl <- read_excel('data/raw/pheno_meta_data_abc.xlsx')
 
 ## CURATING THE ABC_POP_INFO DATAFRAME
 # only keep the columns required from the abc_pop_info
-cols_to_keep <- c("PLANTID","ACP","ACNO","apple_id")
+cols_to_keep <- c("PLANTID", "ACP", "ACNO", "apple_id")
 abc_pop_info <- abc_pop_info[, names(abc_pop_info) %in% cols_to_keep]
 
 # only keep the rows where the ACP is PI
@@ -48,8 +58,10 @@ abc_pop_info <- unique.data.frame(abc_pop_info)
 ## JOINING ##
 #############
 
+abc_pop_info$ACNO <- as.double(abc_pop_info$ACNO)
+
 # matching the ACCNO with the PI (no). in the gpeck data
-gpeck_data_pivot <- inner_join(gpeck_data,abc_pop_info,by = c("PI (no.)" = "ACNO"))
+gpeck_data_pivot <- inner_join(gpeck_data, abc_pop_info, by = c("PI (no.)" = "ACNO"))
 
 nrow(gpeck_data_pivot)
 # [1] 141
@@ -61,7 +73,10 @@ nrow(gpeck_data_pivot)
 # values. There were 8 varieties that had differeing values but after visual
 # inspection, it is confirmed that they are in fact same names, except for 
 # minor formatting changes.
-subset(gpeck_data_pivot, gpeck_data_pivot$`Accession name` != gpeck_data_pivot$PLANTID)[,c("Accession name", "PLANTID")]
+subset(
+  gpeck_data_pivot,
+  gpeck_data_pivot$`Accession name` != gpeck_data_pivot$PLANTID
+)[, c("Accession name", "PLANTID")]
 # # A tibble: 8 x 2
 # `Accession name`                 PLANTID               
 # <chr>                            <chr>                 
@@ -83,14 +98,17 @@ table(gpeck_data_pivot$`Region of origin`)
 # Northern Europe Southern Europe           Spain 
 # 5               1               3 
 
+
+gpeck_data_pivot$apple_id <- as.double(gpeck_data_pivot$apple_id)
+
 # join the phenotype table
-final.cider.df <- left_join(gpeck_data_pivot,abc_pheno_tbl, by = "apple_id")
+final.cider.df <- left_join(gpeck_data_pivot, abc_pheno_tbl, by = "apple_id")
 
 nrow(final.cider.df)
 # [1] 141
 
 # only retain the English and French cider apples
-final.cider.df <- 
+final.cider.df <-
   final.cider.df[
     which(final.cider.df$`Region of origin` == "England" | 
             final.cider.df$`Region of origin` == "France"

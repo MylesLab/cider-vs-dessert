@@ -2,8 +2,6 @@
 # Objective : This script generates a list file which contains the phenotype
 #             data for all the apples that are used in our analyses
 
-library(ggplot2)
-
 ###############################
 ## CIDER APPLES LIST CLEANUP ##
 ###############################
@@ -28,9 +26,11 @@ final_cider.df <- read.table(
   'data/processed/final_cider_apple_phenotype_data.tsv',
   header = TRUE
 )
+dim(final_cider.df)
+# [1] 83 61
 
 # only keep certain columns
-final_cider.df <- final_cider.df[,c(
+final_cider.df <- final_cider.df[, c(
   "PI..no..",
   "Accession.name",
   "acidity_17_harv",
@@ -92,18 +92,22 @@ nrow(final_dessert.df)
 ######################
 
 final.df <- rbind(final_cider.df, final_dessert.df)
+dim(final.df)
+# [1] 99 13
 
 ########################
 ## SAMPLE FILTERATION ##
 ########################
 
 # get the rows (accessions) with 50% or less missingness
-phenos <- 3:(ncol(final.df)-1)
-only_phenos_final.df <- final.df[,phenos]
+phenos <- 3:(ncol(final.df) - 1)
+only_phenos_final.df <- final.df[, phenos]
 filtered_accessions <- which(rowSums(is.na(only_phenos_final.df)) <= 5)
 
 # filter the final dataframe
 final.df <- final.df[filtered_accessions,]
+dim(final.df)
+# [1] 54 13
 
 ####################
 ## EXPORTING DATA ##
