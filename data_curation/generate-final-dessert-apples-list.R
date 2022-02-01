@@ -133,15 +133,16 @@ common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Prairie Spy",common_
 common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Hotle Rome",common_dessert_pheno_dat$PLANTID),]
 common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Rome Beauty Law",common_dessert_pheno_dat$PLANTID),]
 common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Red Australian Rome Beauty",common_dessert_pheno_dat$PLANTID),]
-# common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Pink Lady", common_dessert_pheno_dat$PLANTID),]
+# Pink Lady is removed because there is no phenotype data available for this in our dataset.
+common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Pink Lady", common_dessert_pheno_dat$PLANTID),]
 
 # how many varieties that we end up with
 nrow(common_dessert_pheno_dat)
-# [1] 17
+# [1] 16
 
 final_dessert.df <- left_join(common_dessert_pheno_dat, abc_pop_info)
 dim(final_dessert.df)
-# [1] 17 49
+# [1] 16 49
 
 # checking to see which apples are the ones that have no PI ID and it turns out
 # all of them are from Kentville.
