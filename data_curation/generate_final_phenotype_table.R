@@ -109,6 +109,13 @@ final.df <- final.df[filtered_accessions,]
 dim(final.df)
 # [1] 54 13
 
+##################
+## UPDATE NAMES ##
+##################
+
+final.df[grep("Barkley Rome",final.df$Name),'Name'] <- "Rome"
+final.df[grep("Fuji",final.df$Name),'Name'] <- "Fuji"
+
 ####################
 ## EXPORTING DATA ##
 ####################

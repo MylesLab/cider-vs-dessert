@@ -59,12 +59,12 @@ pca <- prcomp(pca_data_matrix)
 # scree plot
 vars_transformed <- apply(pca$x, 2, var)
 pov <- (vars_transformed / sum(vars_transformed)) * 100 # proportion of variance
-pov.df <- data.frame(pc = seq(1, 10), pov = pov)
-scree_plot <- ggplot(pov.df, aes(x = pc, y = pov)) +
-  geom_line() +
+pov.df <- data.frame(pc = names(pov), pov = pov)
+scree_plot <- ggplot(pov.df, aes(x = reorder(pc,-pov), y = pov, group = 1)) +
   geom_point() +
   geom_text(aes(label = paste0(round(pov, 2), "%")), hjust = -0.4, vjust = 0, size = 3) +
   theme_avenir() +
+  geom_line() +
   xlab("Principal Components (PC)") +
   ylab("Cumulative Variance (%)") +
   ggtitle("PCA Scree Plot") +
@@ -76,24 +76,44 @@ scree_plot <- ggplot(pov.df, aes(x = pc, y = pov)) +
   )
 ggsave(filename = "figures/pca/scree_plot.png", plot = scree_plot, bg="white")
 
+pca_df <- as.data.frame(pca$x)
+pca_df$AppleType <- pca_data$AppleType
+
+# save the PCA dataframe for later use
+write.table(
+  as.data.frame(pca_df),
+  file = "data/processed/pca/pca.csv",
+  sep = ",",
+  row.names = FALSE
+)
+
+# save the POV dataframe for later use
+write.table(
+  pov.df,
+  file = "data/processed/pca/pov.csv",
+  sep = ",",
+  row.names = FALSE
+)
+
+
 #########################################
 ## GENERATE PC BIPLOT AND VIOLIN PLOTS ##
 #########################################
 
-pc1_pc2 <- generate_pca_biplot(as.data.frame(pca$x), pca_data, c("PC1", "PC2"), pov)
-pc1_pc3 <- generate_pca_biplot(as.data.frame(pca$x), pca_data, c("PC1", "PC3"), pov)
+pc1_pc2 <- generate_pca_biplot(pca_df, c("PC1", "PC2"), pov.df)
+pc1_pc3 <- generate_pca_biplot(pca_df, c("PC1", "PC3"), pov.df)
 
 PCs <- data.frame(
-  PC1 = as.numeric(pca$x[, 1]),
-  PC2 = as.numeric(pca$x[, 2]),
-  PC3 = as.numeric(pca$x[, 3]),
-  AppleType = final.df$AppleType
+  PC1 = as.numeric(pca_df$PC1),
+  PC2 = as.numeric(pca_df$PC2),
+  PC3 = as.numeric(pca_df$PC3),
+  AppleType = pca_df$AppleType
 )
 PCs$AppleType <- as.factor(PCs$AppleType)
 
 pc_fig1 <- ggarrange(
   ggarrange(pc1_pc2, pc1_pc3, common.legend = TRUE, labels = c("A", "B")),
-  generate_pca_violin_plots(PCs, pov),
+  generate_pca_violin_plots(PCs, pov.df, labels = c("PC1","PC2","PC3")),
   nrow = 2, ncol = 1, labels = c("", "C")
 )
 ggsave(
@@ -111,13 +131,42 @@ ggsave(
 ############################
 dplots <- create_density_plots(pca_data)
 
+dplot_stats.df <- as.data.frame(matrix(ncol=2, nrow=0))
+for(i in seq_along(dplots$stats)){
+  name <- names(dplots$stats[i])
+  w <- dplots$stats[[i]]$statistic
+  p <- dplots$stats[[i]]$pvals
+
+  dplot_stats.df <- rbind(
+    dplot_stats.df,
+    c(
+      name,
+      paste0(p["p_des_vs_eng"], " (W=", w["w_des_vs_eng.W"], ")"),
+      paste0(p["p_des_vs_fr"], " (W=", w["w_des_vs_fr.W"], ")"),
+      paste0(p["p_eng_vs_fr"], " (W=",w["w_eng_vs_fr.W"], ")")
+    )
+  )
+
+}
+
+colnames(dplot_stats.df) <- c("Name","DessertVsEnglish","DessertVsFrench","EnglishVsFrench")
+
+write.table(
+  dplot_stats.df,
+  file = "data/processed/density/stats.csv",
+  sep = ",",
+  quote = FALSE,
+  row.names = FALSE
+)
+
 ggsave(
   filename = 'figures/density/fig-2_density_plots.png',
   plot = dplots$all_plots,
   dpi = 600,
   width = 6.92,
   height = 7,
-  limitsize = FALSE
+  limitsize = FALSE,
+  bg = "white"
 )
 
 # generate a nice table of statistics and p-values of the density plots

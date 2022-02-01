@@ -12,8 +12,10 @@ library(ggplot2)
 library(usedist)
 library(tidyverse)
 library(ggthemes)
+library(ggpubr)
 
 source("themes/theme_main.R")
+source('analyses/utils.R')
 
 # laod the data
 final.df <- utils::read.table(
@@ -42,37 +44,38 @@ dim(grouped_dist)
 # [1] 1431 6
 
 # add another column to clasify the comparison
-grouped_dist[which(grouped_dist$Group1 == "England" & grouped_dist$Group2 == "Dessert"), 'Comparison'] <- "English:Dessert"
-grouped_dist[which(grouped_dist$Group1 == "France" & grouped_dist$Group2 == "Dessert"), 'Comparison'] <- "French:Dessert"
-grouped_dist[which(grouped_dist$Group1 == "England" & grouped_dist$Group2 == "France"), 'Comparison'] <- "English:French"
-grouped_dist[which(grouped_dist$Group1 == "France" & grouped_dist$Group2 == "England"), 'Comparison'] <- "English:French"
+grouped_dist[which(grouped_dist$Group1 == "England" & grouped_dist$Group2 == "Dessert"), 'Comparison'] <- "English vs. Dessert"
+grouped_dist[which(grouped_dist$Group1 == "France" & grouped_dist$Group2 == "Dessert"), 'Comparison'] <- "French vs. Dessert"
+grouped_dist[which(grouped_dist$Group1 == "England" & grouped_dist$Group2 == "France"), 'Comparison'] <- "English vs. French"
+grouped_dist[which(grouped_dist$Group1 == "France" & grouped_dist$Group2 == "England"), 'Comparison'] <- "English vs. French"
+grouped_dist[which(grouped_dist$Group1 == "Dessert" & grouped_dist$Group2 == "Dessert"), 'Comparison'] <- "Dessert vs. Dessert"
 
-rows <- grep("Within Dessert", grouped_dist$Label)
-rows <- c(rows, grep("Between Dessert", grouped_dist$Label))
-
-grouped_dist <- grouped_dist[rows,]
+# remove the between England and France
+grouped_dist <- grouped_dist[-which(grouped_dist$Label == "Between England and France"),]
 
 # remove all the rows where the comparison is between same varieties
 grouped_dist <- grouped_dist %>% drop_na(Comparison)
 
-ed <- grouped_dist[which(grouped_dist$Comparison == "English:Dessert"), 'Distance']
-fd <- grouped_dist[which(grouped_dist$Comparison == "French:Dessert"), 'Distance']
+# calculate the significance of difference between the distances of English vs. dessert and French vs. dessert
+eng_vs_des_dist <- grouped_dist[which(grouped_dist$Comparison == "English vs. Dessert"),'Distance']
+fr_vs_des_dist <- grouped_dist[which(grouped_dist$Comparison == "French vs. Dessert"), 'Distance']
 
-length(ed)
-length(fd)
-
-wilcox.test(ed, fd)
-
-table(grouped_dist$Comparison)
-
-# grouped_dist <- grouped_dist[grep("Within",grouped_dist$Label),]
+wilcox.test(eng_vs_des_dist,fr_vs_des_dist)
+#
+# Wilcoxon rank sum test with continuity correction
+#
+# data:  eng_vs_des_dist and fr_vs_des_dist
+# W = 36403, p-value = 0.002641
+# alternative hypothesis: true location shift is not equal to 0
+# generate the distance plot
 
 dist_plot <- ggplot(grouped_dist) +
-  geom_density(aes(x = Distance, fill = Label), alpha = 0.5) +
+  geom_density(aes(x = Distance, fill = Comparison), alpha = 0.5) +
   GLOBAL_THEME +
   theme(
-    legend.position = "bottom"
-  )
+    legend.position = "bottom",
+    legend.title = element_blank()
+  ) + ylab("Density")
 ggsave(
   filename = "figures/distance/euclidean_dist_distribution.png",
   plot = dist_plot,
@@ -83,19 +86,72 @@ ggsave(
   bg = "white"
 )
 
+
 sim_plot.df <- grouped_dist[grouped_dist$Group2 == "Dessert",]
-
 sim_plot.df <- grouped_dist[grouped_dist$Group2 == "Dessert", c("Item2", "Distance", "Comparison")]
-
 for_plot.df <- sim_plot.df %>%
   group_by(Comparison, Item2) %>%
   summarize(MeanDist = mean(Distance)) %>%
   pivot_wider(names_from = "Comparison", values_from = "MeanDist") %>%
   rename("Name" = "Item2", "EnglishMeanDist" = "English:Dessert", "FrenchMeanDist" = "French:Dessert")
 
-for_plot.df %>%
+sim_plot <- for_plot.df %>%
   ggplot(aes(x = EnglishMeanDist, y = FrenchMeanDist)) +
-  geom_text(aes(label = Name)) +
+  geom_text(aes(label = Name), nudge_y = 0.06) +
+  geom_point() +
   GLOBAL_THEME +
-  xlab("Avg. distance from English cider varieties") +
-  ylab("Avg. distance from French cider varieties")
+  xlim(3.8,5.9) + ylim(3.8,5.9) +
+  xlab("Avg. distance from English \ncider varieties") +
+  ylab("Avg. distance from French \ncider varieties")
+
+
+#####################
+# GENERATE FIGURE 1 #
+#####################
+
+# load the relevant data for Figure 1A
+fig_1a.pca.df <- read_delim(
+  'data/processed/pca/pca.csv',
+  delim = ","
+)
+fig_1a.pov.df <- read_delim(
+  'data/processed/pca/pov.csv',
+  delim = ","
+)
+
+PCs <- data.frame(
+  PC1 = as.numeric(fig_1a.pca.df$PC1),
+  PC2 = as.numeric(fig_1a.pca.df$PC2),
+  AppleType = fig_1a.pca.df$AppleType
+)
+PCs$AppleType <- as.factor(PCs$AppleType)
+
+pc1_pc2 <- generate_pca_biplot(fig_1a.pca.df,c("PC1","PC2"),fig_1a.pov.df)
+violin_plots <- generate_pca_violin_plots(PCs, fig_1a.pov.df, labels = c("B","C"))
+
+fig1.plot <- ggarrange(
+  ggarrange(
+    pc1_pc2,
+    violin_plots,
+    nrow = 1, ncol=2,labels = c("A",""),
+    common.legend = TRUE
+  ),
+  ggarrange(
+    dist_plot, sim_plot,
+    nrow = 1, ncol = 2,
+    labels = c("D","E")
+  ),
+  nrow = 2, ncol=1
+)
+
+ggsave(
+  filename = "figures/final_figures/Figure1.png",
+  plot = fig1.plot,
+  dpi = 600,
+  width = 11,
+  height = 9.5,
+  limitsize = FALSE,
+  bg = "white"
+
+)
+

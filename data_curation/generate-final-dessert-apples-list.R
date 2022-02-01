@@ -14,14 +14,18 @@ library(readxl)
 
 # the ABC phenotype data
 abc_pheno_tbl <- read_excel('data/raw/pheno_meta_data_abc.xlsx')
+dim(abc_pheno_tbl)
+# [1] 1119 48
 
 # for attaching the PI ids
 abc_pop_info <- read_excel(
-  'data/raw/20200204_abc_pop_info.xlsx'
+  'data/raw/20200204_abc_pop_info.xlsx',
+  col_types = "text"
 )
 abc_pop_info <- abc_pop_info[,c("PLANTID","ACNO")]
 abc_pop_info <- unique(abc_pop_info)
-
+dim(abc_pop_info)
+# [1] 1294 2
 
 
 ####################################
@@ -29,7 +33,11 @@ abc_pop_info <- unique(abc_pop_info)
 ####################################
 
 # Source: 
-# https://www.agr.gc.ca/eng/canadas-agriculture-sectors/horticulture/market-information-infohort/apple-reports/?id=1605706730291
+# This data was obtained from Agriculture and Agri-Food Canada Horticulture 
+# Infohort website. Apple Storage data was obtained for cropping year of 
+# 2020-21 and the apples listed as "Fresh" utlilization were considered as common
+# dessert apples.
+# https://aimis-simia.agr.gc.ca/rp/index-eng.cfm?action=pR&r=329&menupos=01.02.02.05.1
 
 canada_dessert_apples <- c(
   "Ambrosia",
@@ -69,7 +77,7 @@ us_dessert_apples <- c(
   "Honeycrisp",
   "McIntosh",
   "Rome",
-  "Cripps",
+  "Cripps", # TODO: Ask sean: cultivar name is Cripps Pink, commonly known as Pink Lady. Maybe should be removed?
   "Pink Lady",
   "Empire"
 )
@@ -111,7 +119,7 @@ for(name in common_dessert_apples){
 nrow(common_dessert_pheno_dat)
 # [1] 30 varieties
 
-# removing some of the varieties that are not cider apples
+# removing some of the varieties
 common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Buckeye Gala",common_dessert_pheno_dat$PLANTID),]
 common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Gala Must Regal Prince",common_dessert_pheno_dat$PLANTID),]
 common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Galarina",common_dessert_pheno_dat),]
@@ -125,13 +133,15 @@ common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Prairie Spy",common_
 common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Hotle Rome",common_dessert_pheno_dat$PLANTID),]
 common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Rome Beauty Law",common_dessert_pheno_dat$PLANTID),]
 common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Red Australian Rome Beauty",common_dessert_pheno_dat$PLANTID),]
-common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Pink Lady", common_dessert_pheno_dat$PLANTID),]
+# common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Pink Lady", common_dessert_pheno_dat$PLANTID),]
 
 # how many varieties that we end up with
 nrow(common_dessert_pheno_dat)
-# [1] 16
+# [1] 17
 
 final_dessert.df <- left_join(common_dessert_pheno_dat, abc_pop_info)
+dim(final_dessert.df)
+# [1] 17 49
 
 # checking to see which apples are the ones that have no PI ID and it turns out
 # all of them are from Kentville.
