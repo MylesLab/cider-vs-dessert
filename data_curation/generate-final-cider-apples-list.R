@@ -21,38 +21,28 @@ gpeck_data <- read_excel(
   'data/raw/DOI:10.21273-JASHS05056/cider_apple_data_pgreg.xlsx',
 )
 
-nrow(gpeck_data)
-# [1] 217
-# This number matches to the one in the paper and therefore I am confident that
-# the data correctly loaded.
+dim(gpeck_data)
+# [1] 217 11
+# This number of rows matches to the one in the paper and therefore 
+# I am confident that the data correctly loaded.
 
 # load the ABC data with PI ids 
 abc_pop_info <- read_excel(
   'data/raw/20200204_abc_pop_info.xlsx',
   col_types = "text"
 )
+abc_pop_info <- abc_pop_info[,c("PLANTID", "ACP", "ACNO", "apple_id")]
+abc_pop_info <- unique(abc_pop_info)
+# only keep the rows where the ACP is PI
+abc_pop_info <- abc_pop_info[which(abc_pop_info$ACP == "PI"),]
 dim(abc_pop_info)
-# [1] 3988 12
+# [1] 946 4
 
 # load the ABC phenotype table
 abc_pheno_tbl <- read_excel('data/raw/pheno_meta_data_abc.xlsx')
 dim(abc_pheno_tbl)
 # [1] 1119 48
 
-###################
-## DATA CURATION ##
-###################
-
-## CURATING THE ABC_POP_INFO DATAFRAME
-# only keep the columns required from the abc_pop_info
-cols_to_keep <- c("PLANTID", "ACP", "ACNO", "apple_id")
-abc_pop_info <- abc_pop_info[, names(abc_pop_info) %in% cols_to_keep]
-
-# only keep the rows where the ACP is PI
-abc_pop_info <- abc_pop_info[which(abc_pop_info$ACP == "PI"),]
-
-# only keep the unique rows
-abc_pop_info <- unique.data.frame(abc_pop_info)
 
 #############
 ## JOINING ##
@@ -70,7 +60,7 @@ nrow(gpeck_data_pivot)
 # present in ABC.
 
 # inspecting to see if the "Accession name" and the "PLANTID" columns have the same
-# values. There were 8 varieties that had differeing values but after visual
+# values. There were 8 varieties that had differing values but after visual
 # inspection, it is confirmed that they are in fact same names, except for 
 # minor formatting changes.
 subset(
@@ -89,6 +79,7 @@ subset(
 # 7 Rouge Belle De Boskoop           Rouge Belle de Boskoop
 # 8 Reinette D'Anjou                 Reinette d' Anjou 
 
+# checking to see what the different regions of origins are
 table(gpeck_data_pivot$`Region of origin`)
 # 
 # Australia  Central Europe         England     Former USSR          France 
