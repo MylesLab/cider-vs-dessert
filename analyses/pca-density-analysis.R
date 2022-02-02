@@ -19,7 +19,7 @@ final.df <- utils::read.table(
   header = TRUE
 )
 dim(final.df)
-# [1] 54 13
+# [1] 55 13
 
 colnames(final.df)
 
@@ -30,7 +30,7 @@ colnames(final.df)
 # see the distribution of apples
 table(final.df$AppleType)
 # Dessert England  France 
-# 14      11      29
+# 15      11      29
 
 # change the names of categories
 final.df[which(final.df$AppleType == "England"),'AppleType'] <- "English"
@@ -39,13 +39,13 @@ final.df[which(final.df$AppleType == "France"),'AppleType'] <- "French"
 # see the distribution of apples again
 table(final.df$AppleType)
 # Dessert English  French 
-# 14      11      29 
+# 15      11      29 
 
 # only get the columns that can be used for PCA
 pca_data <- final.df[, 3:ncol(final.df)]
 
 dim(pca_data)
-# [1] 54 11
+# [1] 55 11
 
 ##################
 ## PCA ANALYSIS ##
@@ -167,40 +167,4 @@ ggsave(
   height = 7,
   limitsize = FALSE,
   bg = "white"
-)
-
-# generate a nice table of statistics and p-values of the density plots
-nms <- head(colnames(pca_data), -1)
-den_stats <- data.frame()
-den_pvals <- data.frame()
-for (n in seq_along(nms)) {
-  name <- nms[n]
-  pvals <- as.numeric(dplots$stats[[name]]$pvals)
-  stats <- as.numeric(dplots$stats[[name]]$statistic)
-
-  den_pvals <- rbind(den_pvals, c(name, round(pvals, 2)))
-  den_stats <- rbind(den_stats, c(name, stats))
-}
-
-colnames(den_stats) <- c("Name", "EngVsDes", "FrVsDes", "EngVsFr")
-rownames(den_stats) <- nms
-
-colnames(den_pvals) <- c("Name", "EngVsDes", "FrVsDes", "EngVsFr")
-rownames(den_pvals) <- nms
-
-EngVsDesStr <- "p.EngVsDes||' (W='||s.EngVsDes||')' AS EngVsDes, "
-FrVsDesStr <- "p.FrVsDes||' (W='||s.FrVsDes||')' AS FrVsDes, "
-EngVsFr <- "p.EngVsFr||' (W='||s.EngVsFr||')' AS EngVsFr "
-sqlStr <- paste0(
-  "SELECT p.Name, ", EngVsDesStr, FrVsDesStr, EngVsFr,
-  "FROM den_pvals AS p JOIN den_stats AS s ON p.Name = s.Name"
-)
-
-density_res <- as.data.frame(sqldf::sqldf(sqlStr))
-
-utils::write.table(
-  density_res,
-  'data/processed/density_analysis_statistics.tsv',
-  sep = "\t",
-  row.names = FALSE
 )
