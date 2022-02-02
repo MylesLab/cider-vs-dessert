@@ -22,11 +22,10 @@ abc_pop_info <- read_excel(
   'data/raw/20200204_abc_pop_info.xlsx',
   col_types = "text"
 )
-abc_pop_info <- abc_pop_info[,c("PLANTID","ACNO")]
+abc_pop_info <- abc_pop_info[which(abc_pop_info$ACP == "PI"),c("PLANTID","ACNO")]
 abc_pop_info <- unique(abc_pop_info)
 dim(abc_pop_info)
-# [1] 1294 2
-
+# [1] 940   2
 
 ####################################
 ## CANADIAN COMMON DESSERT APPLES ##
