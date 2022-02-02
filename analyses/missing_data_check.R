@@ -115,8 +115,8 @@ for(i in seq_len(nrow(final.df))){
 }
 
 table(traits_missing)
-# 0  1  2  3  4
-# 18  5 24  4  3
+# 0  1  2  3  4  5 
+# 18  6 24  3  3  1 
 
 # the missing ness threshold for samples is 50%. In other words, an accession needs
 # to have the data for at least 50% of the traits.
