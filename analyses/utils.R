@@ -84,7 +84,6 @@ generate_pca_biplot <- function(pca, choices, pov) {
       values = c(21, 23, 23),
       labels = GLOBAL_LABELS
     ) +
-    coord_fixed() +
     GLOBAL_THEME
 
 

@@ -23,7 +23,7 @@ final.df <- utils::read.table(
   header = TRUE
 )
 dim(final.df)
-# [1] 54 13
+# [1] 55 13
 
 # only keep the columns for the 10 traits
 data_idxs <- tail(head(seq_along(final.df), -1), -2)
@@ -41,7 +41,7 @@ dist_all <- dist(scale(dat.df), method = "euclidean")
 
 grouped_dist <- dist_groups(dist_all, final.df$AppleType)
 dim(grouped_dist)
-# [1] 1431 6
+# [1] 1485 6
 
 # add another column to clasify the comparison
 grouped_dist[which(grouped_dist$Group1 == "England" & grouped_dist$Group2 == "Dessert"), 'Comparison'] <- "English vs. Dessert"
@@ -61,13 +61,12 @@ eng_vs_des_dist <- grouped_dist[which(grouped_dist$Comparison == "English vs. De
 fr_vs_des_dist <- grouped_dist[which(grouped_dist$Comparison == "French vs. Dessert"), 'Distance']
 
 wilcox.test(eng_vs_des_dist,fr_vs_des_dist)
-#
+# 
 # Wilcoxon rank sum test with continuity correction
-#
+# 
 # data:  eng_vs_des_dist and fr_vs_des_dist
-# W = 36403, p-value = 0.002641
+# W = 37152, p-value = 0.505
 # alternative hypothesis: true location shift is not equal to 0
-# generate the distance plot
 
 dist_plot <- ggplot(grouped_dist) +
   geom_density(aes(x = Distance, fill = Comparison), alpha = 0.5) +
@@ -93,14 +92,14 @@ for_plot.df <- sim_plot.df %>%
   group_by(Comparison, Item2) %>%
   summarize(MeanDist = mean(Distance)) %>%
   pivot_wider(names_from = "Comparison", values_from = "MeanDist") %>%
-  rename("Name" = "Item2", "EnglishMeanDist" = "English:Dessert", "FrenchMeanDist" = "French:Dessert")
+  rename("Name" = "Item2", "EnglishMeanDist" = "English vs. Dessert", "FrenchMeanDist" = "French vs. Dessert")
 
 sim_plot <- for_plot.df %>%
   ggplot(aes(x = EnglishMeanDist, y = FrenchMeanDist)) +
   geom_text(aes(label = Name), nudge_y = 0.06) +
   geom_point() +
   GLOBAL_THEME +
-  xlim(3.8,5.9) + ylim(3.8,5.9) +
+  # xlim(3.8,5.9) + ylim(3.8,5.9) +
   xlab("Avg. distance from English \ncider varieties") +
   ylab("Avg. distance from French \ncider varieties")
 
@@ -148,7 +147,7 @@ ggsave(
   filename = "figures/final_figures/Figure1.png",
   plot = fig1.plot,
   dpi = 600,
-  width = 11,
+  width = 15,
   height = 9.5,
   limitsize = FALSE,
   bg = "white"
