@@ -2,8 +2,6 @@
 # Objective : This script generates a list file which contains the phenotype
 #             data for the dessert apple varieties that are commonly grown in 
 #             US and Canada that are available in ABC
-# Created by: tayabsoomro
-# Created on: 2021-05-30
 
 ####################################
 ## LIBRARY IMPORTS & DATA LOADING ##
@@ -12,20 +10,18 @@
 library(dplyr)
 library(readxl)
 
+source('data_curation/utils.R')
+
 # the ABC phenotype data
 abc_pheno_tbl <- read_excel('data/raw/pheno_meta_data_abc.xlsx')
 dim(abc_pheno_tbl)
 # [1] 1119 48
 
 # for attaching the PI ids
-abc_pop_info <- read_excel(
-  'data/raw/20200204_abc_pop_info.xlsx',
-  col_types = "text"
-)
-abc_pop_info <- abc_pop_info[which(abc_pop_info$ACP == "PI"),c("PLANTID","ACNO")]
-abc_pop_info <- unique(abc_pop_info)
+abc_pop_info <- load_abc_pop_info()
 dim(abc_pop_info)
-# [1] 940   2
+# [1] 910 3
+
 
 ####################################
 ## CANADIAN COMMON DESSERT APPLES ##

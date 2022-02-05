@@ -17,15 +17,21 @@ final.df <- utils::read.table(
   'data/processed/final_phenotype_table.tsv',
   header = TRUE
 )
+dim(final.df)
+# [1] 54 13
 
 all_phenotype_names <- head(colnames(final.df)[-1],n=-1)
+all_phenotype_names
+# [1] "Name"            "Acidity"         "DeltaAcidity"    "SSC"             "Firmness"        "Weight"         
+# [7] "Juiciness"       "PhenolicContent" "HarvestDate"     "FloweringDate"   "Softening" 
 
 sample_size_table <- as.data.frame(matrix(NA, nrow = 10, ncol = 3))
 colnames(sample_size_table) <- c("Dessert", "English", "French")
 rownames(sample_size_table) <- all_phenotype_names[2:length(all_phenotype_names)]
 
-for(i in seq_along(all_phenotype_names)){
-  phenotype <- all_phenotype_names[i+1]
+for(i in seq_along(all_phenotype_names)[-1]){
+  print(i)
+  phenotype <- all_phenotype_names[i]
   
   ph_dat <- cbind(
     sum(!is.na(final.df[which(final.df$AppleType == 'Dessert'),phenotype])),
@@ -33,11 +39,11 @@ for(i in seq_along(all_phenotype_names)){
     sum(!is.na(final.df[which(final.df$AppleType == 'France'),phenotype]))
   )
   
-  sample_size_table[i,] <- ph_dat
+  sample_size_table[i-1,] <- ph_dat
 }
 
 # write sample sizes table
 write.xlsx(
   sample_size_table,
-  '../data/processed/tbl-sample-sizes.xlsx'
+  'data/processed/tbl-sample-sizes.xlsx'
 )

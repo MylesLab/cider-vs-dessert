@@ -1,13 +1,12 @@
-# Title     : Generate Final Cider Apples List
 # Objective : This script generates a list file which contains the phenotype
 #             data for only the cider apples that overlap between ABC and the ones
 #             that are used in Greg Peck's recent paper titled:
 #             "Classifying Cider Apple Germplasm Using Genetic Markers for Fruit Acidity"
-# Created by: tayabsoomro
-# Created on: 2021-05-20
 
 library(dplyr)
 library(readxl)
+
+source("data_curation/utils.R")
 
 ##################
 ## DATA LOADING ##
@@ -27,16 +26,9 @@ dim(gpeck_data)
 # I am confident that the data correctly loaded.
 
 # load the ABC data with PI ids 
-abc_pop_info <- read_excel(
-  'data/raw/20200204_abc_pop_info.xlsx',
-  col_types = "text"
-)
-abc_pop_info <- abc_pop_info[,c("PLANTID", "ACP", "ACNO", "apple_id")]
-abc_pop_info <- unique(abc_pop_info)
-# only keep the rows where the ACP is PI
-abc_pop_info <- abc_pop_info[which(abc_pop_info$ACP == "PI"),]
+abc_pop_info <- load_abc_pop_info()
 dim(abc_pop_info)
-# [1] 946 4
+# [1] 910 3
 
 # load the ABC phenotype table
 abc_pheno_tbl <- read_excel('data/raw/pheno_meta_data_abc.xlsx')
@@ -52,11 +44,10 @@ abc_pop_info$ACNO <- as.double(abc_pop_info$ACNO)
 
 # matching the ACCNO with the PI (no). in the gpeck data
 gpeck_data_pivot <- inner_join(gpeck_data, abc_pop_info, by = c("PI (no.)" = "ACNO"))
-
 nrow(gpeck_data_pivot)
-# [1] 141
+# [1] 139
 
-# Of the 217 total cider apple varieties in the paper, there are 141 that are
+# Of the 217 total cider apple varieties in the paper, there are 139 that are
 # present in ABC.
 
 # inspecting to see if the "Accession name" and the "PLANTID" columns have the same
@@ -81,22 +72,21 @@ subset(
 
 # checking to see what the different regions of origins are
 table(gpeck_data_pivot$`Region of origin`)
-# 
+#
 # Australia  Central Europe         England     Former USSR          France 
-# 1              16              35               1              48 
+# 1              16              34               1              48 
 # Japan             n/a     New Zealand   North America Northern Africa 
-# 1               2               1              26               1 
+# 1               2               1              25               1 
 # Northern Europe Southern Europe           Spain 
 # 5               1               3 
-
 
 gpeck_data_pivot$apple_id <- as.double(gpeck_data_pivot$apple_id)
 
 # join the phenotype table
-final.cider.df <- left_join(gpeck_data_pivot, abc_pheno_tbl, by = "apple_id")
+final.cider.df <- left_join(gpeck_data_pivot, abc_pheno_tbl)
 
 nrow(final.cider.df)
-# [1] 141
+# [1] 139
 
 # only retain the English and French cider apples
 final.cider.df <-
@@ -107,13 +97,13 @@ final.cider.df <-
 ]
 
 nrow(final.cider.df)
-# [1] 83
+# [1] 82
 
 table(final.cider.df$`Region of origin`)
 # England  France 
-# 35      48
+# 34      48
 
-# We retain 83 cider apple varieties, of which 35 are English and 48 are French
+# We retain 82 cider apple varieties, of which 34 are English and 48 are French
 
 #################
 ## EXPORT DATA ##

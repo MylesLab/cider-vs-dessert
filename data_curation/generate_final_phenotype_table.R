@@ -2,6 +2,9 @@
 # Objective : This script generates a list file which contains the phenotype
 #             data for all the apples that are used in our analyses
 
+
+source("data_curation/constants.R")
+
 ###############################
 ## CIDER APPLES LIST CLEANUP ##
 ###############################
@@ -21,18 +24,6 @@ NEW_COLNAMES <- c(
   "Softening" # % Change in firmness during storage
 )
 
-phenotype_cols <- c(
-  "acidity_17_harv",
-  "percent_acidity_17",
-  "brix_17_harv",
-  "firmness_avg_17_harv",
-  "weight_avg_17_harv",
-  "juiciness_16_harv",
-  "tpc",
-  "date_jul_17_harv",
-  "flowering_jul_16_harv",
-  "percent_firmness_avg_17"
-)
 
 # get the final cider apple list
 final_cider.df <- read.table(
@@ -40,12 +31,12 @@ final_cider.df <- read.table(
   header = TRUE
 )
 dim(final_cider.df)
-# [1] 83 61
+# [1] 82 59
 
 # only keep certain columns
 final_cider.df <- final_cider.df[, c(
   "PI..no..",
-  "Accession.name",
+  "PLANTID",
   phenotype_cols,
   "Region.of.origin"
 )]
@@ -54,7 +45,7 @@ final_cider.df <- final_cider.df[, c(
 colnames(final_cider.df) <- c(NEW_COLNAMES, "AppleType")
 
 dim(final_cider.df)
-# [1] 83 13
+# [1] 82 13
 
 #################################
 ## DESSERT APPLES LIST CLEANUP ##
@@ -90,7 +81,7 @@ dim(final_dessert.df)
 
 final.df <- rbind(final_cider.df, final_dessert.df)
 dim(final.df)
-# [1] 99 13
+# [1] 98 13
 
 #######################
 ## SAMPLE FILTRATION ##
@@ -102,10 +93,16 @@ only_phenos_final.df <- final.df[, phenos_idx]
 filtered_accessions <- which(rowSums(is.na(only_phenos_final.df)) <= 5) # 50% of 10 phenotypes (i.e., 5 phenotypes)
 # should be present for the particular sample to be added
 
-# filter the final dataframe
+length(filtered_accessions)
+# [1] 54 
+
+# there are 54 samples that have more than 50% (i.e., 5) phenotypes missing and
+# they should therefore be removed from the final set of samples.
+
+# filter the final data frame
 final.df <- final.df[filtered_accessions,]
 dim(final.df)
-# [1] 55 13
+# [1] 54 13
 
 ##################
 ## UPDATE NAMES ##
