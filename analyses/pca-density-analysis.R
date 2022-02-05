@@ -19,9 +19,12 @@ final.df <- utils::read.table(
   header = TRUE
 )
 dim(final.df)
-# [1] 55 13
+# [1] 54 13
 
 colnames(final.df)
+# [1] "PIID"            "Name"            "Acidity"         "DeltaAcidity"    "SSC"            
+# [6] "Firmness"        "Weight"          "Juiciness"       "PhenolicContent" "HarvestDate"    
+# [11] "FloweringDate"   "Softening"       "AppleType" 
 
 #######################
 ## GENERATE PCA DATA ##
@@ -30,7 +33,7 @@ colnames(final.df)
 # see the distribution of apples
 table(final.df$AppleType)
 # Dessert England  France 
-# 15      11      29
+# 15      10      29
 
 # change the names of categories
 final.df[which(final.df$AppleType == "England"),'AppleType'] <- "English"
@@ -39,13 +42,13 @@ final.df[which(final.df$AppleType == "France"),'AppleType'] <- "French"
 # see the distribution of apples again
 table(final.df$AppleType)
 # Dessert English  French 
-# 15      11      29 
+# 15      10      29 
 
 # only get the columns that can be used for PCA
 pca_data <- final.df[, 3:ncol(final.df)]
 
 dim(pca_data)
-# [1] 55 11
+# [1] 54 11
 
 ##################
 ## PCA ANALYSIS ##
