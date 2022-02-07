@@ -22,8 +22,21 @@ load_abc_pop_info <- function(){
   dim(abc_pop_info)
   # [1] 3988 12
   
+  # check to see what types of data is in ACP
+  table(abc_pop_info$ACP)
+  # GMAL   PI 
+  # 51 2864
+  
+  sum(is.na(abc_pop_info$ACP))
+  # [1] 1073
+  
+  # There are 1,124 (51+1073) rows that are not PI and are thus removed. The
+  # reason why we need to keep only the ones that have PI is because that's the 
+  # number that we use to match the cider apples in the Kumar et al. paper.
+  
   abc_pop_info <- unique(abc_pop_info[which(abc_pop_info$ACP == "PI"),c("PLANTID","ACNO","apple_id")])
   dim(abc_pop_info)
+  # [1] 946 3
   
   # get the names of apples for which there are more than one apple ids.
   duplicates <- unique(abc_pop_info[which(duplicated(abc_pop_info$PLANTID)),]$PLANTID)
@@ -35,7 +48,7 @@ load_abc_pop_info <- function(){
   for(name in duplicates){
     aids <- abc_pop_info[which(abc_pop_info$PLANTID == name),]$apple_id
     
-    num_missing <- 10
+    num_missing <- 11
     final_aid <- NULL
     for(aid in aids){
       current_missing <- 

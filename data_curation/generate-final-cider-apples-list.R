@@ -48,12 +48,14 @@ nrow(gpeck_data_pivot)
 # [1] 139
 
 # Of the 217 total cider apple varieties in the paper, there are 139 that are
-# present in ABC.
+# present in ABC. That is 78 accessions for which we do not have the phenotype 
+# data available.
 
-# inspecting to see if the "Accession name" and the "PLANTID" columns have the same
-# values. There were 8 varieties that had differing values but after visual
-# inspection, it is confirmed that they are in fact same names, except for 
-# minor formatting changes.
+# inspecting to see if the "Accession name" column (obtained from gpeck_data) 
+# and the "PLANTID" column (obtained from ABC data) have the same values. 
+# There were 8 varieties that had differing values but after visual inspection, 
+# it is confirmed that they are in fact same names, except for minor formatting 
+# changes.
 subset(
   gpeck_data_pivot,
   gpeck_data_pivot$`Accession name` != gpeck_data_pivot$PLANTID
