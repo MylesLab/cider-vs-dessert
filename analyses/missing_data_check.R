@@ -19,6 +19,8 @@ final.df <- utils::read.table(
   'data/processed/final_phenotype_table.tsv',
   header = TRUE
 )
+dim(final.df)
+# [1] 54 13
 
 #######################
 ## DATA DISTRIBUTION ##
@@ -48,7 +50,6 @@ ggsave(
 ###############################
 ## MISSINGNESS BY PHENOTYPES ##
 ###############################
-
 
 phenotype_avail.df <- NULL
 for(p_i in 4:ncol(final.df)-1){
@@ -116,7 +117,7 @@ for(i in seq_len(nrow(final.df))){
 
 table(traits_missing)
 # 0  1  2  3  4  5 
-# 18  6 24  3  3  1 
+# 18  6 23  3  3  1 
 
-# the missing ness threshold for samples is 50%. In other words, an accession needs
+# the missingness threshold for samples is 50%. In other words, an accession needs
 # to have the data for at least 50% of the traits.

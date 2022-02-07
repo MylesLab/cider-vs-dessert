@@ -23,7 +23,7 @@ final.df <- utils::read.table(
   header = TRUE
 )
 dim(final.df)
-# [1] 55 13
+# [1] 54 13
 
 # only keep the columns for the 10 traits
 data_idxs <- tail(head(seq_along(final.df), -1), -2)
@@ -41,7 +41,7 @@ dist_all <- dist(scale(dat.df), method = "euclidean")
 
 grouped_dist <- dist_groups(dist_all, final.df$AppleType)
 dim(grouped_dist)
-# [1] 1485 6
+# [1] 1431 6
 
 # add another column to clasify the comparison
 grouped_dist[which(grouped_dist$Group1 == "England" & grouped_dist$Group2 == "Dessert"), 'Comparison'] <- "English vs. Dessert"
@@ -65,16 +65,18 @@ wilcox.test(eng_vs_des_dist,fr_vs_des_dist)
 # Wilcoxon rank sum test with continuity correction
 # 
 # data:  eng_vs_des_dist and fr_vs_des_dist
-# W = 37152, p-value = 0.505
+# W = 35345, p-value = 0.1276
 # alternative hypothesis: true location shift is not equal to 0
 
 dist_plot <- ggplot(grouped_dist) +
   geom_density(aes(x = Distance, fill = Comparison), alpha = 0.5) +
   GLOBAL_THEME +
+  scale_x_continuous(expand = c(0,0), limits = c(0,NA)) +
+  scale_y_continuous(expand = c(0,0), limits = c(0,NA)) +
   theme(
     legend.position = "bottom",
     legend.title = element_blank()
-  ) + ylab("Density")
+  ) + ylab("Density") + xlab("Pairwise Euclidean distance")
 ggsave(
   filename = "figures/distance/euclidean_dist_distribution.png",
   plot = dist_plot,
@@ -86,7 +88,6 @@ ggsave(
 )
 
 
-sim_plot.df <- grouped_dist[grouped_dist$Group2 == "Dessert",]
 sim_plot.df <- grouped_dist[grouped_dist$Group2 == "Dessert", c("Item2", "Distance", "Comparison")]
 for_plot.df <- sim_plot.df %>%
   group_by(Comparison, Item2) %>%
@@ -99,7 +100,8 @@ sim_plot <- for_plot.df %>%
   geom_text(aes(label = Name), nudge_y = 0.06) +
   geom_point() +
   GLOBAL_THEME +
-  # xlim(3.8,5.9) + ylim(3.8,5.9) +
+  xlim(3.7, 5.8) +
+  ylim(3.7, 5.8) + 
   xlab("Avg. distance from English \ncider varieties") +
   ylab("Avg. distance from French \ncider varieties")
 
@@ -132,22 +134,22 @@ fig1.plot <- ggarrange(
   ggarrange(
     pc1_pc2,
     violin_plots,
-    nrow = 1, ncol=2,labels = c("A",""),
+    nrow = 2, ncol=1,labels = c("A",""),
     common.legend = TRUE
   ),
   ggarrange(
     dist_plot, sim_plot,
-    nrow = 1, ncol = 2,
+    nrow = 2, ncol = 1,
     labels = c("D","E")
   ),
-  nrow = 2, ncol=1
+  nrow = 1, ncol=2
 )
 
 ggsave(
   filename = "figures/final_figures/Figure1.png",
   plot = fig1.plot,
   dpi = 600,
-  width = 15,
+  width = 12,
   height = 9.5,
   limitsize = FALSE,
   bg = "white"
