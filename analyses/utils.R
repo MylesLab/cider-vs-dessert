@@ -8,7 +8,7 @@ library(ggplot2)
 source('themes/theme_main.R')
 
 generate_pca_violin_plots <- function(dat, pov, labels) {
-  components <- colnames(PCs)[grep("PC", colnames(PCs))]
+  components <- colnames(dat)[grep("PC", colnames(dat))]
   plots <- list()
   idx <- 0
   max_y <- 7
@@ -23,6 +23,11 @@ generate_pca_violin_plots <- function(dat, pov, labels) {
     pov_val <- pov[pov$pc == component, 'pov']
 
     print(component)
+    
+    wilcox.test(eng_dat, des_dat)$p.value
+    wilcox.test(frn_dat, des_dat)$p.value
+    wilcox.test(eng_dat, frn_dat)$p.value
+    
     print(paste0("W( Eng_vs_Des ) = ", wilcox.test(eng_dat, des_dat)$statistic))
     print(paste0("W( Frn_vs_Des ) = ", wilcox.test(frn_dat, des_dat)$statistic))
     print(paste0("W( Eng_vs_Frn ) = ", wilcox.test(eng_dat, frn_dat)$statistic))
@@ -33,9 +38,9 @@ generate_pca_violin_plots <- function(dat, pov, labels) {
                   color = "black", alpha = GLOBAL_ALPHA) +
       geom_boxplot(width = 0.1, fill = "white") +
       stat_compare_means(
+        aes(label = "..p.adj.."),
         method = "wilcox.test",
         p.adjust.method = "bonferroni",
-        label = sprintf("p=%s", "p.adj"),
         hide.ns = TRUE,
         comparisons = list(c("Dessert", "English"), c("Dessert", "French"), c("English", "French")),
         label.y = c(4.8, 5.8, 6.8)
@@ -78,7 +83,7 @@ generate_pca_biplot <- function(pca, choices, pov) {
       palette = GLOBAL_PALETTE,
       labels = GLOBAL_LABELS,
       direction = GLOBAL_DIRECTION
-    ) +
+    ) + coord_fixed() + 
     scale_shape_manual(
       name = "Apple Type",
       values = c(21, 23, 23),
@@ -88,75 +93,6 @@ generate_pca_biplot <- function(pca, choices, pov) {
 
 
   return(plot)
-}
-
-create_arrow_plot <- function(is_arrow, direction, left_text, right_text) {
-
-  annotations <- data.frame(
-    xpos = c(-Inf, Inf),
-    ypos = c(Inf, Inf),
-    annotateText = c(left_text, right_text),
-    hjustvar = c(-0.1, 1.2),
-    vjustvar = c(1.5, 1.5))
-
-  THEME <- GLOBAL_THEME +
-    theme(
-      axis.ticks.x = element_blank(),
-      axis.ticks.y = element_blank(),
-      axis.text.x = element_blank(),
-      axis.text.y = element_blank(),
-      axis.title.x = element_blank(),
-      axis.title.y = element_blank(),
-      panel.border = element_rect(color = "black", fill = NA),
-      aspect.ratio = 0.1
-    )
-
-  if (is_arrow) {
-
-    arrow_func = arrow(ends = ifelse(direction == "left", "first", "last"))
-
-    plt <- ggplot() +
-      geom_segment(
-        data.frame(x1 = c(1), y1 = c(1), y2 = c(1)),
-        mapping = aes(x = x1, y = y1, xend = x1 + x1, yend = y1),
-        arrow = arrow_func, size = 2, color = "black") +
-      geom_text(data = annotations, aes(x = xpos, y = ypos, hjust = hjustvar, vjust = vjustvar, label = annotateText)) +
-      GLOBAL_THEME +
-      theme(
-        axis.ticks.x = element_blank(),
-        axis.ticks.y = element_blank(),
-        axis.text.x = element_blank(),
-        axis.text.y = element_blank(),
-        panel.border = element_rect(color = "black", fill = NA),
-        aspect.ratio = 0.1
-      ) +
-      xlab("") +
-      ylab("") +
-      scale_x_continuous(expand = c(0, 0)) +
-      scale_y_continuous(expand = c(0, 0))
-
-  } else {
-    plt <- ggplot() +
-      geom_segment(
-        data.frame(x1 = c(1), y1 = c(1), y2 = c(1)),
-        mapping = aes(x = x1, y = y1, xend = x1 + x1, yend = y1),
-        arrow = NULL, size = 2, color = "grey") +
-      geom_text(data = annotations, aes(x = xpos, y = ypos, hjust = hjustvar, vjust = vjustvar, label = annotateText)) +
-      GLOBAL_THEME +
-      theme(
-        axis.ticks.x = element_blank(),
-        axis.ticks.y = element_blank(),
-        axis.text.x = element_blank(),
-        axis.text.y = element_blank(),
-        panel.border = element_rect(color = "black", fill = NA),
-        aspect.ratio = 0.1
-      ) +
-      xlab("") +
-      ylab("")
-  }
-
-
-  return(plt)
 }
 
 create_density_plots <- function(dframe) {
