@@ -43,7 +43,7 @@ grouped_dist <- dist_groups(dist_all, final.df$AppleType)
 dim(grouped_dist)
 # [1] 1431 6
 
-# add another column to clasify the comparison
+# add another column to classify the comparison
 grouped_dist[which(grouped_dist$Group1 == "England" & grouped_dist$Group2 == "Dessert"), 'Comparison'] <- "English vs. Dessert"
 grouped_dist[which(grouped_dist$Group1 == "France" & grouped_dist$Group2 == "Dessert"), 'Comparison'] <- "French vs. Dessert"
 grouped_dist[which(grouped_dist$Group1 == "England" & grouped_dist$Group2 == "France"), 'Comparison'] <- "English vs. French"
@@ -59,6 +59,25 @@ grouped_dist <- grouped_dist %>% drop_na(Comparison)
 # calculate the significance of difference between the distances of English vs. dessert and French vs. dessert
 eng_vs_des_dist <- grouped_dist[which(grouped_dist$Comparison == "English vs. Dessert"),'Distance']
 fr_vs_des_dist <- grouped_dist[which(grouped_dist$Comparison == "French vs. Dessert"), 'Distance']
+des_vs_des_dist <- grouped_dist[which(grouped_dist$Comparison == "Dessert vs. Dessert"), 'Distance']
+
+# perform Wilcox test between english and dessert and within dessert
+# accessions
+wilcox.test(des_vs_des_dist, eng_vs_des_dist)
+# 
+# Wilcoxon rank sum test with continuity correction
+# 
+# data:  des_vs_des_dist and eng_vs_des_dist
+# W = 4401, p-value = 2.068e-09
+# alternative hypothesis: true location shift is not equal to 0
+
+wilcox.test(des_vs_des_dist, fr_vs_des_dist)
+# 
+# Wilcoxon rank sum test with continuity correction
+# 
+# data:  des_vs_des_dist and fr_vs_des_dist
+# W = 14240, p-value = 2.085e-09
+# alternative hypothesis: true location shift is not equal to 0
 
 wilcox.test(eng_vs_des_dist,fr_vs_des_dist)
 # 
@@ -128,7 +147,7 @@ PCs <- data.frame(
 PCs$AppleType <- as.factor(PCs$AppleType)
 
 pc1_pc2 <- generate_pca_biplot(fig_1a.pca.df,c("PC1","PC2"),fig_1a.pov.df)
-violin_plots <- generate_pca_violin_plots(PCs, fig_1a.pov.df, labels = c("B","C"))
+violin_plots <- generate_pca_violin_plots(PCs, fig_1a.pov.df, lbls = c("B","C"))
 
 fig1.plot <- ggarrange(
   ggarrange(

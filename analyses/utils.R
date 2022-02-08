@@ -7,12 +7,12 @@ library(ggplot2)
 
 source('themes/theme_main.R')
 
-generate_pca_violin_plots <- function(dat, pov, labels) {
+generate_pca_violin_plots <- function(dat, pov, lbls) {
   components <- colnames(dat)[grep("PC", colnames(dat))]
   plots <- list()
   idx <- 0
-  max_y <- 7
-  min_y <- -7
+  max_y <- 8
+  min_y <- -5
   for (component in components) {
     idx <- idx + 1
 
@@ -43,7 +43,7 @@ generate_pca_violin_plots <- function(dat, pov, labels) {
         p.adjust.method = "bonferroni",
         hide.ns = TRUE,
         comparisons = list(c("Dessert", "English"), c("Dessert", "French"), c("English", "French")),
-        label.y = c(4.8, 5.8, 6.8)
+        label.y = c(3.8, 4.8, 5.8)
       ) +
       GLOBAL_THEME +
       theme(legend.position = "none") +
@@ -53,7 +53,7 @@ generate_pca_violin_plots <- function(dat, pov, labels) {
       scale_fill_brewer(palette = GLOBAL_PALETTE, direction = GLOBAL_DIRECTION) +
       ylab(sprintf("%s (%.1f%%)", component, pov_val))
   }
-  ggarrange(plotlist = plots, nrow = 1, ncol = length(components), labels = labels)
+  ggarrange(plotlist = plots, nrow = 1, ncol = length(components), labels = lbls)
 }
 
 generate_pca_biplot <- function(pca, choices, pov) {

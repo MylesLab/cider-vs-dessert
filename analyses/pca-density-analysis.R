@@ -115,7 +115,7 @@ PCs$AppleType <- as.factor(PCs$AppleType)
 
 pc_fig1 <- ggarrange(
   ggarrange(pc1_pc2, pc1_pc3, common.legend = TRUE, labels = c("A", "B")),
-  generate_pca_violin_plots(PCs, pov.df, labels = c("PC1","PC2","PC3")),
+  generate_pca_violin_plots(PCs, pov.df, lbls = c("PC1","PC2","PC3")),
   nrow = 2, ncol = 1, labels = c("", "C")
 )
 ggsave(
