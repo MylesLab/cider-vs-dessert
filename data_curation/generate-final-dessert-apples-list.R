@@ -72,7 +72,7 @@ us_dessert_apples <- c(
   "Honeycrisp",
   "McIntosh",
   "Rome",
-  "Cripps", # TODO: Ask sean: cultivar name is Cripps Pink, commonly known as Pink Lady. Maybe should be removed?
+  "Cripps", 
   "Pink Lady",
   "Empire"
 )
