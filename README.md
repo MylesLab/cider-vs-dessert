@@ -100,7 +100,7 @@ Given that you have above dependencies installed in your working machine, you sh
 You first need to generate the dataset which is going to be used for running the analyses.<br />
 **1a.** `data_curation/generate-final-dessert-apples-list.R` - Running this file will generate `data/processed/final_dessert_apple_phenotype_data.tsv`.<br />
 **1b.** `data_curation/generate-final-cider-apples-list.R` - Running this file will generate `data/processed/final_cider_apple_phenotype_data.tsv`. <br />
-**1c.** `data_curation/generate-final-phenotype-table.R` - Running this file will generate `data/processed/final_phenotype_table.tsv' which is the main file used for all the analyses. <br />
+**1c.** `data_curation/generate-final-phenotype-table.R` - Running this file will generate `data/processed/final_phenotype_table.tsv` which is the main file used for all the analyses. <br />
 
 **2. Analyses** 
 <br />
