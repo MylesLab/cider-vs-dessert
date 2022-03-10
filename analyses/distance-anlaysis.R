@@ -23,10 +23,10 @@ final.df <- utils::read.table(
   header = TRUE
 )
 dim(final.df)
-# [1] 54 13
+# [1] 54 14
 
 # only keep the columns for the 10 traits
-data_idxs <- tail(head(seq_along(final.df), -1), -2)
+data_idxs <- tail(head(seq_along(final.df), -1), -3)
 trait_names <- colnames(final.df)[data_idxs]
 dat.df <- final.df[, data_idxs]
 
@@ -68,7 +68,7 @@ wilcox.test(des_vs_des_dist, eng_vs_des_dist)
 # Wilcoxon rank sum test with continuity correction
 # 
 # data:  des_vs_des_dist and eng_vs_des_dist
-# W = 4401, p-value = 2.068e-09
+# W = 4283, p-value = 5.794e-10
 # alternative hypothesis: true location shift is not equal to 0
 
 wilcox.test(des_vs_des_dist, fr_vs_des_dist)
@@ -76,7 +76,7 @@ wilcox.test(des_vs_des_dist, fr_vs_des_dist)
 # Wilcoxon rank sum test with continuity correction
 # 
 # data:  des_vs_des_dist and fr_vs_des_dist
-# W = 14240, p-value = 2.085e-09
+# W = 13965, p-value = 6.304e-10
 # alternative hypothesis: true location shift is not equal to 0
 
 wilcox.test(eng_vs_des_dist,fr_vs_des_dist)
@@ -84,7 +84,7 @@ wilcox.test(eng_vs_des_dist,fr_vs_des_dist)
 # Wilcoxon rank sum test with continuity correction
 # 
 # data:  eng_vs_des_dist and fr_vs_des_dist
-# W = 35345, p-value = 0.1276
+# W = 35592, p-value = 0.09654
 # alternative hypothesis: true location shift is not equal to 0
 
 dist_plot <- ggplot(grouped_dist) +
@@ -119,10 +119,24 @@ sim_plot <- for_plot.df %>%
   geom_text(aes(label = Name), nudge_y = 0.06) +
   geom_point() +
   GLOBAL_THEME +
-  xlim(3.7, 5.8) +
-  ylim(3.7, 5.8) + 
+  xlim(3.5, 5.8) +
+  ylim(3.5, 5.8) + 
   xlab("Avg. distance from English \ncider varieties") +
   ylab("Avg. distance from French \ncider varieties")
+
+
+plot(for_plot.df$EnglishMeanDist,for_plot.df$FrenchMeanDist, xlim = c(3.5,5.8), ylim = c(3.5,5.8))
+# 
+# Pearson's product-moment correlation
+# 
+# data:  for_plot.df$EnglishMeanDist and for_plot.df$FrenchMeanDist
+# t = 2.1147, df = 13, p-value = 0.05434
+# alternative hypothesis: true correlation is not equal to 0
+# 95 percent confidence interval:
+#  -0.008562705  0.808617788
+# sample estimates:
+#       cor 
+# 0.5059193 
 
 
 #####################
@@ -165,13 +179,12 @@ fig1.plot <- ggarrange(
 )
 
 ggsave(
-  filename = "figures/final_figures/Figure1.png",
+  filename = "figures/final_figures/Figure1.svg",
   plot = fig1.plot,
   dpi = 600,
   width = 12,
   height = 9.5,
   limitsize = FALSE,
   bg = "white"
-
 )
 

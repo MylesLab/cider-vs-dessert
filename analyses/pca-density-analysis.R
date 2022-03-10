@@ -19,12 +19,12 @@ final.df <- utils::read.table(
   header = TRUE
 )
 dim(final.df)
-# [1] 54 13
+# [1] 54 14
 
 colnames(final.df)
-# [1] "PIID"            "Name"            "Acidity"         "DeltaAcidity"    "SSC"            
-# [6] "Firmness"        "Weight"          "Juiciness"       "PhenolicContent" "HarvestDate"    
-# [11] "FloweringDate"   "Softening"       "AppleType" 
+# [1] "PIID"            "apple_id"        "Name"            "Acidity"         "DeltaAcidity"   
+# [6] "SSC"             "Firmness"        "Weight"          "Juiciness"       "PhenolicContent"
+# [11] "HarvestDate"     "FloweringDate"   "Softening"       "AppleType"      
 
 #######################
 ## GENERATE PCA DATA ##
@@ -45,7 +45,7 @@ table(final.df$AppleType)
 # 15      10      29 
 
 # only get the columns that can be used for PCA
-pca_data <- final.df[, 3:ncol(final.df)]
+pca_data <- final.df[, 4:ncol(final.df)]
 
 dim(pca_data)
 # [1] 54 11
@@ -56,6 +56,8 @@ dim(pca_data)
 
 pca_cols_idxs <- head(seq_len(ncol(pca_data)), -1)
 pca_data_matrix <- scale(pca_data[, pca_cols_idxs]) # scale and center the data
+dim(pca_data_matrix)
+# [1] 54 10
 pca_data_matrix[is.na(pca_data_matrix)] <- 0
 pca <- prcomp(pca_data_matrix)
 
@@ -77,7 +79,7 @@ scree_plot <- ggplot(pov.df, aes(x = reorder(pc,-pov), y = pov, group = 1)) +
     axis.title.x = element_text(hjust = 0.5, size = 12),
     axis.title.y = element_text(hjust = 0.5, size = 12)
   )
-ggsave(filename = "figures/pca/scree_plot.png", plot = scree_plot, bg="white")
+ggsave(filename = "figures/pca/scree_plot.pdf", plot = scree_plot, bg="white")
 
 pca_df <- as.data.frame(pca$x)
 pca_df$AppleType <- pca_data$AppleType
@@ -119,7 +121,7 @@ pc_fig1 <- ggarrange(
   nrow = 2, ncol = 1, labels = c("", "C")
 )
 ggsave(
-  filename = "figures/pca/Figure-1_pca.png",
+  filename = "figures/pca/Figure-1_pca.svg",
   plot = pc_fig1,
   dpi = 600,
   width = 7.5,
@@ -133,7 +135,7 @@ ggsave(
 ############################
 dplots <- create_density_plots(pca_data)
 
-dplot_stats.df <- as.data.frame(matrix(ncol=2, nrow=0))
+dplot_stats.df <- as.data.frame(matrix(ncol=4, nrow=0))
 for(i in seq_along(dplots$stats)){
   name <- names(dplots$stats[i])
   w <- dplots$stats[[i]]$statistic
@@ -162,7 +164,7 @@ write.table(
 )
 
 ggsave(
-  filename = 'figures/density/fig-2_density_plots.png',
+  filename = 'figures/density/fig-2_density_plots.svg',
   plot = dplots$all_plots,
   dpi = 600,
   width = 6.92,

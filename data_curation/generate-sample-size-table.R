@@ -1,8 +1,6 @@
 # Title     : Generate Sample Sizes Table
 # Objective : This script performs some data checks to get some basic statistics
 #             on the final phenotype table
-# Created by: tayabsoomro
-# Created on: 2021-05-31
 
 ############################
 ## IMPORTS & DATA LOADING ##
@@ -20,16 +18,16 @@ final.df <- utils::read.table(
 dim(final.df)
 # [1] 54 13
 
-all_phenotype_names <- head(colnames(final.df)[-1],n=-1)
+all_phenotype_names <- head(tail(colnames(final.df),-3),-1)
 all_phenotype_names
-# [1] "Name"            "Acidity"         "DeltaAcidity"    "SSC"             "Firmness"        "Weight"         
-# [7] "Juiciness"       "PhenolicContent" "HarvestDate"     "FloweringDate"   "Softening" 
+# [1] "Acidity"         "DeltaAcidity"    "SSC"             "Firmness"        "Weight"         
+# [6] "Juiciness"       "PhenolicContent" "HarvestDate"     "FloweringDate"   "Softening" 
 
 sample_size_table <- as.data.frame(matrix(NA, nrow = 10, ncol = 3))
 colnames(sample_size_table) <- c("Dessert", "English", "French")
-rownames(sample_size_table) <- all_phenotype_names[2:length(all_phenotype_names)]
+rownames(sample_size_table) <- all_phenotype_names
 
-for(i in seq_along(all_phenotype_names)[-1]){
+for(i in seq_along(all_phenotype_names)){
   print(i)
   phenotype <- all_phenotype_names[i]
   
@@ -39,7 +37,7 @@ for(i in seq_along(all_phenotype_names)[-1]){
     sum(!is.na(final.df[which(final.df$AppleType == 'France'),phenotype]))
   )
   
-  sample_size_table[i-1,] <- ph_dat
+  sample_size_table[i,] <- ph_dat
 }
 
 # write sample sizes table

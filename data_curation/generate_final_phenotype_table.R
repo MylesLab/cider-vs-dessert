@@ -11,6 +11,7 @@ source("data_curation/constants.R")
 
 NEW_COLNAMES <- c(
   "PIID",
+  "apple_id",
   "Name",
   "Acidity",
   "DeltaAcidity", # change in acidity during storage
@@ -36,6 +37,7 @@ dim(final_cider.df)
 # only keep certain columns
 final_cider.df <- final_cider.df[, c(
   "PI..no..",
+  "apple_id",
   "PLANTID",
   phenotype_cols,
   "Region.of.origin"
@@ -45,7 +47,7 @@ final_cider.df <- final_cider.df[, c(
 colnames(final_cider.df) <- c(NEW_COLNAMES, "AppleType")
 
 dim(final_cider.df)
-# [1] 82 13
+# [1] 82 14
 
 #################################
 ## DESSERT APPLES LIST CLEANUP ##
@@ -62,6 +64,7 @@ dim(final_dessert.df)
 # only keep certain columns
 final_dessert.df <- final_dessert.df[,c(
   "ACNO",
+  "apple_id",
   "PLANTID",
   phenotype_cols
 )]
@@ -73,7 +76,7 @@ colnames(final_dessert.df) <- NEW_COLNAMES
 final_dessert.df$AppleType <- "Dessert"
 
 dim(final_dessert.df)
-# [1] 16 13
+# [1] 16 14
 
 ######################
 ## COMBINED DATASET ##
@@ -81,7 +84,7 @@ dim(final_dessert.df)
 
 final.df <- rbind(final_cider.df, final_dessert.df)
 dim(final.df)
-# [1] 98 13
+# [1] 98 14
 
 #######################
 ## SAMPLE FILTRATION ##
@@ -102,7 +105,7 @@ length(filtered_accessions)
 # filter the final data frame
 final.df <- final.df[filtered_accessions,]
 dim(final.df)
-# [1] 54 13
+# [1] 54 14
 
 ##################
 ## UPDATE NAMES ##
@@ -120,5 +123,15 @@ write.table(
   final.df,
   'data/processed/final_phenotype_table.tsv',
   row.names = FALSE
+)
+
+final.df[which(final.df$AppleType == "England"),'AppleType'] <- "English"
+final.df[which(final.df$AppleType == "France"),'AppleType'] <- "French"
+
+openxlsx::write.xlsx(
+  final.df,
+  'data/processed/sup_tbl_1-final_phenotype_table.xlsx',
+  rowNames = FALSE,
+  quotes = FALSE
 )
 

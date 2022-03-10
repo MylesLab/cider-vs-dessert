@@ -117,7 +117,7 @@ nrow(common_dessert_pheno_dat)
 # removing some of the varieties
 common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Buckeye Gala",common_dessert_pheno_dat$PLANTID),]
 common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Gala Must Regal Prince",common_dessert_pheno_dat$PLANTID),]
-common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Galarina",common_dessert_pheno_dat),]
+common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Galarina",common_dessert_pheno_dat$PLANTID),]
 common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Marshall McIntosh",common_dessert_pheno_dat$PLANTID),]
 common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Kimball McIntosh 2-4-4-4",common_dessert_pheno_dat$PLANTID),]
 common_dessert_pheno_dat <- common_dessert_pheno_dat[-grep("Field Spy",common_dessert_pheno_dat$PLANTID),]

@@ -24,9 +24,9 @@ generate_pca_violin_plots <- function(dat, pov, lbls) {
 
     print(component)
     
-    wilcox.test(eng_dat, des_dat)$p.value
-    wilcox.test(frn_dat, des_dat)$p.value
-    wilcox.test(eng_dat, frn_dat)$p.value
+    print(wilcox.test(eng_dat, des_dat)$p.value)
+    print(wilcox.test(frn_dat, des_dat)$p.value)
+    print(wilcox.test(eng_dat, frn_dat)$p.value)
     
     print(paste0("W( Eng_vs_Des ) = ", wilcox.test(eng_dat, des_dat)$statistic))
     print(paste0("W( Frn_vs_Des ) = ", wilcox.test(frn_dat, des_dat)$statistic))
